@@ -56,6 +56,11 @@ const hasAside = Astro.slots.has('default');
     background: var(--color-rule);
   }
   .shead__aside { max-width: 34rem; color: var(--color-text-muted); }
+  @media (max-width: 479px) {
+    .shead { gap: var(--space-4); margin-bottom: var(--space-7); }
+    .shead__display { font-size: var(--text-2xl); }
+    .shead__h2 { margin-top: var(--space-4); font-size: var(--text-sm); }
+  }
   .shead__aside :global(p) { margin: 0 0 var(--space-4); }
 
   .shead--deep .shead__display { color: var(--color-stone-50); }

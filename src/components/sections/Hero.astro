@@ -1,12 +1,15 @@
 ---
 /**
  * Hero (seo-spec §3: the tagline is a display paragraph above the only H1).
- * LCP = the poster picture (ADR §7). Mobile gets a 4:5 crop anchored right
- * (art-direction §5.1 asks 70% 40%; sharp takes gravity keywords only); desktop the 16:9 frame. The video's src is assigned by
- * video.ts after load + idle and fades in over the poster.
+ * LCP = the poster picture (ADR §7). The plate (Pexels 39576513) is shown mirrored so the
+ * house sits in the right-hand subject zone, clear of the glass panel (art-direction §5.1).
+ * Mobile gets a centred 4:5 crop: the facade, pool and palms; centre is symmetric under the
+ * mirror, so the poster crop and the video's object-position frame identically.
+ * The video's src is assigned by video.ts after load + idle and fades in over the poster.
  */
 import { getImage } from 'astro:assets';
 import { hero } from '../../data/content';
+import { uiLabels } from '../../data/ui-labels';
 import { poster } from '../../lib/media';
 import { withBase } from '../../lib/url';
 import Button from '../ui/Button.astro';
@@ -19,7 +22,7 @@ async function srcset(format: 'avif' | 'webp', crop: Crop): Promise<string> {
   const img = await getImage({ src, format, widths: crop.widths, width: max, height: Math.round(max / crop.ratio), fit: 'cover', position: crop.position, quality: crop.quality });
   return img.srcSet.attribute;
 }
-const mobile: Crop = { ratio: 4 / 5, position: 'right', widths: [480, 640, 828, 1080, 1242], quality: 55 };
+const mobile: Crop = { ratio: 4 / 5, position: 'center', widths: [480, 640, 828, 1080, 1242], quality: 55 };
 const desktop: Crop = { ratio: 16 / 9, position: 'center', widths: [1024, 1440, 1920, 2560], quality: 64 };
 const mAvif = await srcset('avif', mobile);
 const mWebp = await srcset('webp', mobile);
@@ -37,7 +40,7 @@ const fallback = await getImage({ src, format: 'jpg', width: 1440, height: 810, 
       <img
         class="hero__poster"
         src={fallback.src}
-        alt={hero.posterAlt}
+        alt={uiLabels.hero.posterAlt}
         width="1440"
         height="810"
         fetchpriority="high"
@@ -75,7 +78,7 @@ const fallback = await getImage({ src, format: 'jpg', width: 1440, height: 810, 
   <button type="button" class="hero__motion" data-video-toggle aria-pressed="false" hidden>
     <svg class="i-pause" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M5 3v10M11 3v10" stroke="currentColor" stroke-width="1.6" /></svg>
     <svg class="i-play" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M5 3l8 5-8 5Z" fill="currentColor" /></svg>
-    <span class="visually-hidden" data-video-toggle-label>Pause background video</span>
+    <span class="visually-hidden" data-video-toggle-label>{uiLabels.hero.videoPause}</span>
   </button>
 </section>
 
@@ -97,8 +100,10 @@ const fallback = await getImage({ src, format: 'jpg', width: 1440, height: 810, 
     width: 100%;
     height: 100%;
     object-fit: cover;
-    object-position: 70% 40%;
+    object-position: center;
   }
+  /* Mirrored plate: puts the house on the right, clear of the panel. On the media, never the picture wrapper (two flips cancel). */
+  .hero__poster, .hero__video { transform: scaleX(-1); }
   /* 2px shorter than the poster: its first frame must never out-size the poster and become the LCP (ADR §7). */
   .hero__video { height: calc(100% - 2px); opacity: 0; transition: opacity var(--duration-scene) var(--ease-in-out); }
   .hero__video.is-playing { opacity: 1; }
@@ -184,11 +189,14 @@ const fallback = await getImage({ src, format: 'jpg', width: 1440, height: 810, 
     .hero__motion { top: calc(var(--nav-height) + 2.75rem); bottom: auto; }
   }
   @media (min-width: 768px) {
-    .hero__media picture, .hero__poster, .hero__video { object-position: center; }
     .hero__scrim { background: linear-gradient(to right, rgb(247 246 242 / 0.35), rgb(247 246 242 / 0) 50%); }
     .hero__layout { align-items: center; padding-bottom: var(--space-8); }
     .hero__panel { padding: var(--space-7) var(--space-7) var(--space-7); }
     .hero__panel::before { left: var(--space-7); right: var(--space-7); }
+  }
+  /* Portrait tablets: panel to the bottom so the house reads above it. */
+  @media (min-width: 768px) and (max-width: 1023px) {
+    .hero__layout { align-items: flex-end; }
   }
   @media (min-width: 1024px) {
     .hero__panel { max-width: 40rem; }

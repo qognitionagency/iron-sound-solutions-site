@@ -127,6 +127,9 @@ const descId = !nameOk ? `d-${cta.trackId}-${Math.random().toString(36).slice(2,
   .btn--text:focus-visible { box-shadow: none; outline: 2px solid var(--color-focus); outline-offset: 4px; }
 
   .btn__icon { flex: none; }
+  @media (max-width: 479px) {
+    .btn--primary, .btn--secondary, .btn--inverse, .btn--ghost-inverse { width: 100%; }
+  }
   /* The arrow moves in the direction the link goes. */
   .btn__icon--arrow { transition: transform var(--duration-base) var(--ease-out-quart); }
   .btn:hover .btn__icon--arrow, .btn:focus-visible .btn__icon--arrow { transform: translateX(3px); }

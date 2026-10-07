@@ -146,6 +146,10 @@
     text-rendering: optimizeLegibility;
     scroll-padding-top: calc(var(--nav-height) + var(--space-4));
   }
+  /* Phones: keyboard focus never lands under the pinned form Back/Next bar or the mobile bar (WCAG 2.2 SC 2.4.11). */
+  @media (max-width: 767px) {
+    html { scroll-padding-bottom: 6rem; }
+  }
   body {
     font-size: var(--text-base);
     overflow-x: clip;

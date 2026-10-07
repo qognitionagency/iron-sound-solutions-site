@@ -8,6 +8,7 @@ import { projects } from '../../data/content';
 import Img from '../ui/Img.astro';
 import Button from '../ui/Button.astro';
 import SectionHead from '../ui/SectionHead.astro';
+import { uiLabels } from '../../data/ui-labels';
 
 // content.ts item id → media slot (media-manifest.json). The boat deck reuses the Boat panel photo.
 const slotFor = (id: string) => (id === 'boat-deck' ? 'env-marine-client' : `gallery-${id}`);
@@ -20,6 +21,7 @@ const anchor: Record<string, string> = { pendants: 'top', camera: 'center' };
       <p>{projects.intro}</p>
     </SectionHead>
 
+    <div class="rail" role="region" aria-label={uiLabels.gallery.railLabel} tabindex="0" data-rail>
     <ul class="grid" role="list">
       {projects.items.map((p) => (
         <li class="item" data-reveal>
@@ -46,12 +48,35 @@ const anchor: Record<string, string> = { pendants: 'top', camera: 'center' };
         </li>
       ))}
     </ul>
+    </div>
 
     <div class="gallery__cta">
       <Button cta={projects.cta} location="gallery" />
     </div>
   </div>
 </section>
+
+<script>
+  // The rail only scrolls on phones. Elsewhere it is a plain grid: no tab stop, no extra landmark.
+  const rail = document.querySelector<HTMLElement>('[data-rail]');
+  if (rail) {
+    const label = rail.getAttribute('aria-label') ?? '';
+    const phone = window.matchMedia('(max-width: 767px)');
+    const sync = () => {
+      if (phone.matches) {
+        rail.setAttribute('role', 'region');
+        rail.setAttribute('aria-label', label);
+        rail.tabIndex = 0;
+      } else {
+        rail.removeAttribute('role');
+        rail.removeAttribute('aria-label');
+        rail.removeAttribute('tabindex');
+      }
+    };
+    sync();
+    phone.addEventListener('change', sync);
+  }
+</script>
 
 <style>
   .gallery { background: var(--color-bg); }
@@ -74,6 +99,19 @@ const anchor: Record<string, string> = { pendants: 'top', camera: 'center' };
   .item__credit { margin: var(--space-1) 0 0; font-size: var(--text-xs); color: var(--color-brass-700); letter-spacing: 0.04em; }
   .gallery__cta { margin-top: var(--space-8); }
 
+  .rail:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 4px; border-radius: var(--radius-sm); }
+  @media (max-width: 767px) {
+    .rail {
+      margin-inline: calc(-1 * var(--space-gutter));
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      scroll-padding-inline: var(--space-gutter);
+      scrollbar-width: none;
+    }
+    .rail::-webkit-scrollbar { display: none; }
+    .grid { display: flex; gap: var(--space-4); padding-inline: var(--space-gutter); width: max-content; }
+    .item { width: min(80vw, 22rem); scroll-snap-align: start; }
+  }
   @media (min-width: 768px) {
     .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .item:nth-child(even) { margin-top: var(--space-9); }

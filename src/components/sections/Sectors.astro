@@ -224,6 +224,10 @@ const authorOf = (id: string) => testimonials.items.find((t) => t.id === id)?.au
   .panel__note { margin: var(--space-4) 0 0; font-size: var(--text-sm); color: var(--color-text-muted); }
   .panel__ctas { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-4) var(--space-6); margin-top: var(--space-6); }
 
+  @media (max-width: 479px) {
+    .panel__headline { font-size: var(--text-xl); }
+    .panel__ctas { flex-direction: column; align-items: stretch; }
+  }
   @media (min-width: 1024px) {
     .panel { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: var(--space-8); align-items: center; }
   }

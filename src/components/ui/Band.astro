@@ -30,8 +30,7 @@ const { back, front, side = 'right' } = Astro.props;
 <style>
   .band {
     position: relative;
-    height: clamp(22rem, 62vw, 44rem);
-    margin-block: 0;
+    height: clamp(15rem, 56vw, 44rem);
   }
   .band__back { position: absolute; inset: 0; overflow: hidden; background: var(--color-stone-200); }
   .band__plate { position: absolute; inset: -14% 0; }
@@ -44,18 +43,25 @@ const { back, front, side = 'right' } = Astro.props;
     object-fit: cover;
   }
   .band__front { position: relative; height: 100%; }
-  .band__inset {
-    position: absolute;
-    bottom: -12%;
-    width: clamp(9rem, 26vw, 22rem);
-    aspect-ratio: 4 / 5;
-    overflow: hidden;
-    border-radius: var(--radius-sm);
-    box-shadow: var(--shadow-lg);
-    outline: 1px solid var(--color-rule);
-    outline-offset: var(--space-2);
+  /* Phones: the band is one full-bleed plate. The inset only exists where it has room. */
+  .band__inset { display: none; }
+
+  @media (min-width: 768px) {
+    .band__inset {
+      display: block;
+      position: absolute;
+      bottom: -3rem;
+      width: clamp(12rem, 22vw, 19rem);
+      aspect-ratio: 4 / 5;
+      overflow: hidden;
+      border-radius: var(--radius-sm);
+      box-shadow: var(--shadow-lg);
+      outline: 1px solid var(--color-rule);
+      outline-offset: var(--space-3);
+    }
+    /* Aligned to the content edge of the page grid, not the viewport edge. */
+    .band--right .band__inset { right: var(--space-gutter); }
+    .band--left .band__inset { left: var(--space-gutter); }
+    .band + :global(section) { padding-top: calc(var(--space-section) + 3rem); }
   }
-  .band--right .band__inset { right: var(--space-gutter); }
-  .band--left .band__inset { left: var(--space-gutter); }
-  .band + :global(section) { padding-top: calc(var(--space-section) + 4rem); }
 </style>

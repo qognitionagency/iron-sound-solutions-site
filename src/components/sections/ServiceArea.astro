@@ -28,7 +28,7 @@ const SOUTH = 25.13;
 const land = `M${px(WEST)} ${py(LAT0)} ` + coast.map(([lo, la]) => `L${px(lo)} ${py(la)}`).join(' ') + ` L${px(WEST)} ${py(SOUTH)} Z`;
 const coastLine = 'M' + coast.map(([lo, la]) => `${px(lo)} ${py(la)}`).join(' L');
 
-const W = Math.ceil(px(-79.85));
+const W = Math.ceil(px(-79.55)); // seaward room for coastal city labels at phone widths
 const H = Math.ceil(py(25.0));
 
 const bands = [
@@ -123,15 +123,15 @@ const countyKey = (label: string) => bands.find((b) => b.label === label)?.key ?
   .area__ctas { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-4) var(--space-6); margin-top: var(--space-6); }
 
   .area__map { margin: 0; }
-  .map { display: block; width: 100%; max-width: 30rem; height: auto; margin-inline: auto; overflow: visible; }
+  .map { display: block; width: 100%; max-width: 30rem; height: auto; max-height: min(78svh, 46rem); margin-inline: auto; overflow: visible; }
   .map__sea line { stroke: var(--color-iron-200); stroke-width: 1; opacity: 0.55; }
   .map__county { fill: var(--color-iron-50); transition: fill var(--duration-base) var(--ease-standard); }
   .map__county[data-county="broward"] { fill: var(--color-iron-100); }
   .map__line { stroke: var(--color-brass); stroke-width: 1; stroke-dasharray: 3 4; }
   .map__coast { fill: none; stroke: var(--color-harbor); stroke-width: 1.5; stroke-linejoin: round; }
-  .map__county-label { font-family: var(--font-body); font-size: 11px; letter-spacing: 0.2em; fill: var(--color-harbor); }
-  .map__city circle { fill: var(--color-iron-700); }
-  .map__city text { font-family: var(--font-body); font-size: 13px; font-weight: 500; fill: var(--color-harbor); }
+  .map__county-label { font-family: var(--font-body); font-size: 15px; font-weight: 500; letter-spacing: 0.16em; fill: var(--color-harbor); }
+  .map__city circle { fill: var(--color-iron-700); r: 5px; }
+  .map__city text { font-family: var(--font-body); font-size: 17px; font-weight: 500; fill: var(--color-harbor); paint-order: stroke; stroke: var(--color-stone-100); stroke-width: 4px; }
   .map__north path { fill: var(--color-brass); }
   .map__north text { font-family: var(--font-body); font-size: 11px; fill: var(--color-brass-700); }
 

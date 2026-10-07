@@ -195,6 +195,8 @@ export const meta = {
   twitterCard: "summary_large_image",
   slogan: "Built to last, designed to perform.",
   // NEEDS DATA: "Wired in and tested" in the description is a practice claim. Josiah confirms systems are tested before handover.
+  // NEEDS DATA: "South Florida" is not on the live site (2026-10-07) except the unpublished /home-page draft. Live signals:
+  // titles "Broward County" (/, /services); /services meta "Miami-Dade County and Palm Beach County". Josiah confirms the area.
 } as const;
 
 // ── Concept ribbon (guardrails: required disclosure) ───────────────────────────────
@@ -310,6 +312,8 @@ export const services = {
       size: "large",
       heading: "Home theater and whole-home audio",
       lede: "Theaters, media rooms and music in every room, out to the pool deck.",
+      // NEEDS DATA: in-ceiling/in-wall/landscape speakers and "weather-rated" outdoor TVs and speakers are not on the live site (2026-10-07).
+      // Live: residential "Audio & Video Systems", "Outdoor Entertainment"; Sonos "WI-FI enabled home audio systems for wireless control".
       body: "Speakers go in the ceiling, the wall or the landscape. Sonos runs the music from one app. Outdoor TVs and speakers are weather-rated.",
       link: tileLink("audio-video", ["theater", "audio", "outdoor"], "home theater and audio"),
       media: { slot: "svc-audio-video", source: "pexels", alt: "" },
@@ -345,6 +349,7 @@ export const services = {
       id: "networking",
       size: "small",
       heading: "Networking and Wi-Fi", // NEEDS DATA: Ubiquiti actively installed. Never "Ubiquiti partner".
+      // NEEDS DATA: cabling practice and ceiling-mounted access points are not on the live site (2026-10-07). Live: "Networking & Wi-Fi".
       lede: "Ubiquiti networking, cabled where it matters, with Wi-Fi planned room by room, outdoors included.",
       body: "Cameras, screens and keypads all share the network. Fixed devices get a cable. Access points go in the ceiling, out of sight.",
       link: tileLink("networking", ["network"], "networking and Wi-Fi"),
@@ -422,6 +427,9 @@ export const sectors = {
       heading: "Businesses",
       headline: "One panel runs the room.",
       // NEEDS DATA: commercial client types and share of work. No commercial proof exists (cro-spec objection table, EMPTY).
+      // NEEDS DATA: conference room AV, background music, video walls, access control and "one control panel" are not on the live site
+      // (2026-10-07). Live /services commercial list: Audio & Video Systems, Lighting Control, Networking & Infrastructure,
+      // Security Systems, Integrated Control, System Design & Upgrades.
       opener:
         "In businesses we install conference room AV, background music, displays and video walls, cameras and access control.",
       bullets: [
@@ -443,6 +451,7 @@ export const sectors = {
       // Client claim stops at the live site's words: "marine-rated components and clean installation practices".
       // Banned: yacht (in headings), superyacht, offshore, saltwater-rated, vibration-resistant.
       // NEEDS DATA: vessel types and lengths, marine brands installed, marine job count.
+      // NEEDS DATA: "the cockpit, the cabin and the deck" (bullet 1) is not on the live site (2026-10-07).
       opener:
         "On boats we install marine audio, displays, onboard networking and integrated control, built using marine-rated components and clean installation practices.",
       bullets: [
@@ -515,12 +524,14 @@ export const processSteps = {
       short: "Consult",
       heading: "Consultation",
       // NEEDS DATA: consultation format (on-site, phone, video), whether it is free, typical length. Do not write "free" until confirmed.
+      // Observed /services 2026-10-07: "We start with a quick call or message to understand your space, goals, and what you want your system to do."
       body: "Start with how you use the space and what you want it to do. We ask the questions up front, so nothing gets guessed later.",
     },
     {
       n: 2,
       short: "Design",
       heading: "Custom design",
+      // NEEDS DATA: "before the work starts" is inferred from the live "transparent pricing with no surprises" (/services); not stated there.
       body: "A system designed for your space, with clear equipment recommendations and transparent pricing. You see the equipment list and the price before the work starts.",
     },
     {
@@ -758,6 +769,8 @@ export const faq = {
     },
     {
       id: "marine-saltwater",
+      // NEEDS DATA: the live site never says "saltwater" (only the unpublished /home-page draft's banned "Saltwater-rated").
+      // Live /services: "demanding environments", "marine-rated components and clean installation practices". Josiah confirms the "Yes".
       question: "Can you install audio and video on a boat that runs in saltwater?",
       answer:
         "Yes. Salt air, spray, sun and constant motion wear out household speakers, screens and connectors quickly, so a boat needs equipment made for the marine environment and wiring that is routed and secured with care. Iron Sound builds marine systems using marine-rated components and clean installation practices, covering audio, displays, onboard networking and integrated control.",
@@ -866,6 +879,9 @@ export const form = {
 
   // Step 2. Lists mapped from /services (observed 2026-10-07).
   // NEEDS DATA: Josiah confirms the lists, especially access control and commercial lighting.
+  // Fact-check 2026-10-07: commercial "Lighting Control" IS on /services. NOT on the site as text: access control,
+  // conference rooms, background music. Missing from these lists vs /services: commercial "Integrated Control" and
+  // "System Design & Upgrades", marine "Custom System Design".
   scope: {
     legend: "What do you want in it?",
     helper: "Pick all that apply. Not sure is a fine answer.",

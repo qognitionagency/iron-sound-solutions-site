@@ -4,8 +4,8 @@
     {
       "slot": "hero",
       "type": "video",
-      "id": 39576530,
-      "query": "infinity pool house sunset"
+      "id": 39576513,
+      "query": "modern villa twilight"
     },
     {
       "slot": "band-cinema",
@@ -138,5 +138,8 @@
     "Residential.png (homepage dusk villa): largest copy served is 1050x600 and its origin is unknown; not used.",
     "frames-for-your-heart-2d4lAQAlbDA-unsplash.jpg: an Unsplash stock photo per its filename; never shown as Iron Sound work, not used.",
     "The three /services commercial images: filenames begin 'ChatGPT Image Jan 21, 2026' (AI-generated); not used."
+  ],
+  "$derived": [
+    "src/assets/media/signature-room-dusk.jpg: rendered from signature-room (Pexels 31817162) by scripts/render-dusk.mjs. Same credit; not a separate Pexels asset."
   ]
 }

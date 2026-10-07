@@ -1,11 +1,11 @@
 ---
 /**
- * Day → Dusk (signature). One daylight photo; Dusk is built in CSS on top of it
- * (art-direction §5.4): a dimmed copy, a harbor multiply layer, a dusk sky over the
- * glazing, and warm/violet glows at each fixture from signature-room-lights.json.
- * --dusk (0..1) drives every layer. Scroll drives it (motion.ts → scene:progress)
- * until the visitor uses the toggle, which then owns the state (aria-pressed).
- * Without JS: the day photo, the copy and the CTA render; the toggle stays hidden.
+ * Day → Dusk (signature). Two real photographs of one room: the Pexels daylight frame
+ * and a Dusk frame pre-rendered from it (scripts/render-dusk.mjs). Default is Day.
+ * Switching to Dusk wipes the dusk photo in from the top like a dimmer coming down,
+ * then the pendants bloom on one by one (glow spans over the photo). Day reverses it.
+ * Control: a two-button segmented control (aria-pressed), arrow keys move between the two.
+ * Reduced motion: the swap is instant. Without JS: the Day photo, copy and CTA render.
  */
 import { lighting } from '../../data/content';
 import scene from '../../data/signature-room-lights.json';
@@ -13,53 +13,50 @@ import Img from '../ui/Img.astro';
 import Button from '../ui/Button.astro';
 import SectionHead from '../ui/SectionHead.astro';
 
-const w = scene.windows;
-const imgProps = { slot: 'signature-room', ratio: 3 / 2, widths: [640, 960, 1280, 1600, 2000], sizes: '(min-width: 1536px) 1456px, 94vw' };
+const imgProps = { ratio: 3 / 2, widths: [640, 960, 1280, 1600, 2000], sizes: '(min-width: 1360px) 1280px, 94vw', quality: 66 };
+const lamps = scene.lights.filter((l) => l.kind === 'lamp');
 ---
 <section id="lighting" class="section lighting" aria-labelledby="lighting-heading">
   <div class="frame">
     <SectionHead display={lighting.display} heading={lighting.heading} id="lighting-heading">
       <p>{lighting.body}</p>
     </SectionHead>
-  </div>
 
-  <div class="lighting__stage-wrap frame">
-    <figure class="stage" data-scene style="--dusk: 0" data-alt-day={lighting.states.day.alt} data-alt-dusk={lighting.states.dusk.alt}>
+    <figure class="stage" data-scene data-state="day" data-alt-day={lighting.states.day.alt} data-alt-dusk={lighting.states.dusk.alt}>
       <div class="stage__frame">
-        <Img {...imgProps} alt={lighting.states.day.alt} class="stage__img stage__img--day" />
+        <Img {...imgProps} slot="signature-room" alt={lighting.states.day.alt} class="stage__img stage__img--day" />
         <div class="stage__dusk" aria-hidden="true">
-          <Img {...imgProps} alt="" class="stage__img stage__img--dim" />
-          <span class="stage__night"></span>
-          <span class="stage__sky" style={`left:${w.x}%;top:${w.y}%;width:${w.w}%;height:${w.h}%`}></span>
-          {scene.lights.map((l) => (
-            <span class:list={['stage__light', `stage__light--${l.kind}`]} style={`left:${l.x}%;top:${l.y}%;--r:${l.r}`}></span>
+          <Img {...imgProps} slot="signature-room-dusk" alt="" class="stage__img" />
+        </div>
+        <div class="stage__sparks" aria-hidden="true">
+          {lamps.map((l, i) => (
+            <span class="stage__spark" style={`--x:${l.x};--y:${l.y};--i:${i}`}></span>
           ))}
         </div>
         <p class="stage__note">{lighting.illustrationNote}</p>
+      </div>
 
-        <div class="stage__control" data-scene-control hidden>
-          <span class="stage__control-label" id="scene-label">{lighting.controlLabel}</span>
-          <span class="switch-group">
-          <span class="switch__opt switch__opt--day" aria-hidden="true" data-scene-day>{lighting.states.day.label}</span>
-          <button
-            type="button"
-            class="switch"
-            aria-pressed="false"
-            aria-labelledby="scene-label scene-dusk"
-            data-scene-toggle
-          >
-            <span class="switch__track" aria-hidden="true"><span class="switch__knob"></span></span>
-            <span class="switch__opt switch__opt--dusk" id="scene-dusk">{lighting.states.dusk.label}</span>
-          </button>
-          </span>
-        </div>
+      <div class="stage__control" role="group" aria-labelledby="scene-label" data-scene-control hidden>
+        <span class="visually-hidden" id="scene-label">{lighting.controlLabel}</span>
+        <button type="button" class="seg" aria-pressed="true" data-scene-set="day">
+          <svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true" class="seg__icon">
+            <circle cx="10" cy="10" r="3.6" fill="none" stroke="currentColor" stroke-width="1.5" />
+            <path d="M10 1.8v2.4M10 15.8v2.4M1.8 10h2.4M15.8 10h2.4M4.2 4.2l1.7 1.7M14.1 14.1l1.7 1.7M4.2 15.8l1.7-1.7M14.1 5.9l1.7-1.7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+          </svg>
+          <span>{lighting.states.day.label}</span>
+        </button>
+        <button type="button" class="seg" aria-pressed="false" data-scene-set="dusk">
+          <svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true" class="seg__icon">
+            <path d="M15.6 12.6A6.6 6.6 0 0 1 7.4 4.4a6.6 6.6 0 1 0 8.2 8.2Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
+          </svg>
+          <span>{lighting.states.dusk.label}</span>
+        </button>
+        <span class="seg__thumb" aria-hidden="true"></span>
       </div>
 
       <figcaption class="stage__caption">
         <span class="stage__state" aria-live="polite" data-scene-caption data-day={lighting.states.day.caption} data-dusk={lighting.states.dusk.caption}>{lighting.states.day.caption}</span>
-        <span class="stage__cta" data-scene-cta>
-          <Button cta={lighting.cta} location="lighting" variant="text" />
-        </span>
+        <Button cta={lighting.cta} location="lighting" variant="text" />
       </figcaption>
     </figure>
   </div>
@@ -71,64 +68,49 @@ const imgProps = { slot: 'signature-room', ratio: 3 / 2, widths: [640, 960, 1280
   const stage = document.querySelector<HTMLElement>('[data-scene]');
   if (stage) {
     const control = stage.querySelector<HTMLElement>('[data-scene-control]')!;
-    const toggle = stage.querySelector<HTMLButtonElement>('[data-scene-toggle]')!;
+    const buttons = [...stage.querySelectorAll<HTMLButtonElement>('[data-scene-set]')];
     const caption = stage.querySelector<HTMLElement>('[data-scene-caption]')!;
-    const cta = stage.querySelector<HTMLElement>('[data-scene-cta]')!;
     const dayImg = stage.querySelector<HTMLImageElement>('.stage__img--day')!;
-
-    let dusk = false;
-    let userOwned = false;
-    let revealed = false;
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
 
     control.hidden = false;
-    cta.hidden = true;
+    stage.classList.add('is-ready');
 
-    const reveal = () => {
-      if (revealed) return;
-      revealed = true;
-      cta.hidden = false;
-      cta.classList.add('is-in');
+    const set = (state: 'day' | 'dusk', focus = false) => {
+      if (stage.dataset.state === state) return;
+      stage.dataset.state = state;
+      buttons.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.sceneSet === state)));
+      dayImg.alt = (state === 'dusk' ? stage.dataset.altDusk : stage.dataset.altDay) ?? '';
+      caption.textContent = (state === 'dusk' ? caption.dataset.dusk : caption.dataset.day) ?? '';
+      if (focus) buttons.find((b) => b.dataset.sceneSet === state)?.focus();
+      track('lighting_toggle', { state });
     };
 
-    const setState = (on: boolean) => {
-      if (on === dusk) return;
-      dusk = on;
-      toggle.setAttribute('aria-pressed', String(on));
-      stage.classList.toggle('is-dusk', on);
-      dayImg.alt = (on ? stage.dataset.altDusk : stage.dataset.altDay) ?? '';
-      caption.textContent = (on ? caption.dataset.dusk : caption.dataset.day) ?? '';
-    };
-
-    // "Day" sits outside the button (so the button's visible text is in its name); clicking it returns to Day.
-    stage.querySelector<HTMLElement>('[data-scene-day]')?.addEventListener('click', () => {
-      if (dusk) toggle.click();
+    buttons.forEach((b) => b.addEventListener('click', () => set(b.dataset.sceneSet as 'day' | 'dusk')));
+    control.addEventListener('keydown', (e) => {
+      if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(e.key)) return;
+      e.preventDefault();
+      set(e.key === 'ArrowLeft' || e.key === 'Home' ? 'day' : 'dusk', true);
     });
 
-    toggle.addEventListener('click', () => {
-      userOwned = true;
-      stage.classList.remove('is-scrubbing');
-      const next = !dusk;
-      stage.style.setProperty('--dusk', next ? '1' : '0');
-      setState(next);
-      reveal();
-      track('lighting_toggle', { state: next ? 'dusk' : 'day' });
-    });
-
-    // Scroll drives the scene until the visitor takes over.
-    stage.addEventListener('scene:progress', (e) => {
-      if (userOwned) return;
-      const p = (e as CustomEvent<{ progress: number }>).detail.progress;
-      stage.classList.add('is-scrubbing');
-      stage.style.setProperty('--dusk', p.toFixed(3));
-      setState(p > 0.5);
-      if (p > 0.95) reveal();
-    });
+    // One-time hint: the Dusk button pulses once when the room first comes into view.
+    if (!reduce.matches && 'IntersectionObserver' in window) {
+      const io = new IntersectionObserver(
+        ([en]) => {
+          if (!en?.isIntersecting) return;
+          io.disconnect();
+          if (stage.dataset.state === 'day') control.classList.add('is-hinting');
+        },
+        { threshold: 0.6 },
+      );
+      io.observe(stage.querySelector('.stage__frame')!);
+      control.addEventListener('animationend', () => control.classList.remove('is-hinting'));
+    }
   }
 </script>
 
 <style>
   .lighting { background: var(--color-stone-100); }
-  .lighting__stage-wrap { max-width: calc(var(--container-wide) + 2 * var(--space-gutter)); }
 
   .stage { margin: 0; }
   .stage__frame {
@@ -147,43 +129,53 @@ const imgProps = { slot: 'signature-room', ratio: 3 / 2, widths: [640, 960, 1280
     object-fit: cover;
   }
 
-  /* Every dusk layer reads --dusk; the toggle animates it, scroll scrubs it. */
+  /* The dimmer: the dusk photograph wipes down from the top (a soft-edged mask) and fades in. */
   .stage__dusk {
     position: absolute;
     inset: 0;
-    opacity: var(--dusk);
-    transition: opacity var(--duration-scene) var(--ease-in-out);
+    opacity: 0;
+    -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 45%, transparent 75%);
+    mask-image: linear-gradient(to bottom, #000 0%, #000 45%, transparent 75%);
+    -webkit-mask-size: 100% 300%;
+    mask-size: 100% 300%;
+    -webkit-mask-position: 0 100%;
+    mask-position: 0 100%;
+    transition:
+      opacity 1400ms var(--ease-in-out),
+      -webkit-mask-position 1400ms var(--ease-in-out),
+      mask-position 1400ms var(--ease-in-out);
   }
-  .stage.is-scrubbing .stage__dusk, .stage.is-scrubbing .stage__light { transition: none; }
-  .stage__frame :global(.stage__img--dim) { filter: brightness(0.62) saturate(0.82) contrast(1.06); }
-  .stage__night { position: absolute; inset: 0; background: var(--scene-night); mix-blend-mode: multiply; }
-  /* Blue-hour sky over the glazing: harbor at the top, dusk violet at the horizon. */
-  .stage__sky {
-    position: absolute;
-    background: linear-gradient(to bottom, var(--color-harbor), var(--color-dusk) 78%, var(--scene-lamp));
-    mix-blend-mode: color;
-    opacity: 0.85;
-  }
+  .stage[data-state="dusk"] .stage__dusk { opacity: 1; -webkit-mask-position: 0 0; mask-position: 0 0; }
 
-  /* Lamps come up after the room has dimmed: opacity lags --dusk. */
-  .stage__light {
+  /* Pendants bloom after the room has dimmed, one by one. On Day they go out together, fast. */
+  /* Sparks are placed in image coordinates and mapped through the visible crop:
+     --ox/--oy = crop offset, --sw/--sh = visible fraction of the photo's width/height. */
+  .stage__sparks { --ox: 0%; --sw: 1; --oy: 0%; --sh: 1; position: absolute; inset: 0; pointer-events: none; }
+  .stage__spark {
     position: absolute;
-    width: calc(var(--r) * 1%);
+    left: calc((var(--x) * 1% - var(--ox)) / var(--sw));
+    top: calc((var(--y) * 1% - var(--oy)) / var(--sh));
+    width: 9%;
     aspect-ratio: 1;
-    transform: translate(-50%, -50%) scale(calc(0.6 + var(--dusk) * 0.4));
+    transform: translate(-50%, -50%) scale(0.4);
     border-radius: 50%;
+    background: radial-gradient(circle, rgb(255 244 222 / 0.95) 0, rgb(255 201 138 / 0.55) 16%, rgb(255 201 138 / 0.12) 42%, rgb(255 201 138 / 0) 68%);
     mix-blend-mode: screen;
-    opacity: clamp(0, (var(--dusk) - 0.35) * 1.8, 1);
-    pointer-events: none;
+    opacity: 0;
+    transition: opacity var(--duration-base) var(--ease-in), transform var(--duration-base) var(--ease-in);
   }
-  .stage__light--lamp { background: radial-gradient(circle, var(--scene-lamp) 0, rgb(255 201 138 / 0.5) 22%, rgb(255 201 138 / 0) 68%); }
-  .stage__light--pool { aspect-ratio: 5 / 1; background: radial-gradient(ellipse, rgb(142 155 255 / 0.55) 0, rgb(142 155 255 / 0.18) 40%, rgb(142 155 255 / 0) 70%); }
-  .stage__light--cove { aspect-ratio: 4 / 1; background: radial-gradient(ellipse, rgb(255 201 138 / 0.8) 0, rgb(255 201 138 / 0.25) 40%, rgb(255 201 138 / 0) 70%); }
+  .stage[data-state="dusk"] .stage__spark {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+    transition: opacity 700ms var(--ease-out-quart), transform 900ms var(--ease-out-expo);
+    transition-delay: calc(900ms + var(--i) * 90ms);
+  }
 
   .stage__note {
     position: absolute;
     top: var(--space-4);
     left: var(--space-4);
+    max-width: calc(100% - 2 * var(--space-4));
     margin: 0;
     padding: var(--space-1) var(--space-3);
     border-radius: var(--radius-xs);
@@ -192,101 +184,102 @@ const imgProps = { slot: 'signature-room', ratio: 3 / 2, widths: [640, 960, 1280
     backdrop-filter: blur(10px);
     color: var(--color-ink);
     font-size: var(--text-xs);
+    line-height: 1.5;
   }
 
+  /* Segmented control, centred on the lower edge of the photo. */
   .stage__control {
-    position: absolute;
-    left: 50%;
-    bottom: var(--space-5);
-    transform: translateX(-50%);
-    display: flex;
-    align-items: center;
-    gap: var(--space-4);
-    padding: var(--space-2) var(--space-2) var(--space-2) var(--space-5);
-    border-radius: var(--radius-pill);
-    background: var(--color-surface-glass);
-    -webkit-backdrop-filter: blur(18px) saturate(1.2);
-    backdrop-filter: blur(18px) saturate(1.2);
-    box-shadow: var(--shadow-glass);
-    white-space: nowrap;
-  }
-  .stage__control-label {
-    font-size: var(--text-xs);
-    font-weight: var(--font-weight-label);
-    letter-spacing: var(--tracking-eyebrow);
-    text-transform: uppercase;
-    color: var(--color-brass-700);
-  }
-  .switch-group {
-    display: inline-flex;
-    align-items: center;
-    padding-left: var(--space-4);
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    width: min(20rem, 86%);
+    margin: calc(-1 * 1.75rem - var(--space-1)) auto 0;
+    padding: var(--space-1);
     border-radius: var(--radius-pill);
     background: var(--color-surface);
-    box-shadow: var(--shadow-xs);
+    box-shadow: var(--shadow-md);
   }
-  .switch {
+  .seg {
+    position: relative;
+    z-index: 1;
     display: inline-flex;
     align-items: center;
-    gap: var(--space-3);
-    min-height: 2.75rem;
-    padding: 0 var(--space-4);
+    justify-content: center;
+    gap: var(--space-2);
+    min-height: 3rem;
+    padding: 0 var(--space-5);
     border: 0;
     border-radius: var(--radius-pill);
     background: transparent;
-    color: var(--color-heading);
+    color: var(--color-text-muted);
     font: inherit;
     font-size: var(--text-sm);
     font-weight: var(--font-weight-label);
+    letter-spacing: 0.02em;
     cursor: pointer;
+    transition: color var(--duration-base) var(--ease-standard);
   }
-  .switch:focus-visible { outline: none; box-shadow: var(--shadow-focus); }
-  .switch__opt { transition: color var(--duration-base) var(--ease-standard); }
-  .switch__opt--day { cursor: pointer; color: var(--color-heading); font-size: var(--text-sm); font-weight: var(--font-weight-label); }
-  .switch__opt--dusk { color: var(--color-text-muted); }
-  .stage:global(.is-dusk) .switch__opt--day { color: var(--color-text-muted); }
-  .switch[aria-pressed="true"] .switch__opt--dusk { color: var(--color-heading); }
-  .switch__track {
-    position: relative;
-    width: 2.75rem;
-    height: 1.5rem;
-    border-radius: var(--radius-pill);
-    background: var(--color-stone-200);
-    transition: background-color var(--duration-scene) var(--ease-in-out);
-  }
-  .switch__knob {
+  .seg:hover { color: var(--color-heading); }
+  .seg[aria-pressed="true"] { color: var(--color-on-accent); }
+  .seg:focus-visible { outline: none; box-shadow: var(--shadow-focus); }
+  .seg__icon { flex: none; }
+  /* The thumb slides under the pressed option: harbor by day, warmer and glowing at dusk. */
+  .seg__thumb {
     position: absolute;
-    top: 0.1875rem;
-    left: 0.1875rem;
-    width: 1.125rem;
-    height: 1.125rem;
-    border-radius: 50%;
-    background: var(--color-surface);
-    box-shadow: var(--shadow-sm);
-    transition: transform var(--duration-base) var(--ease-out-quart), box-shadow var(--duration-scene) var(--ease-in-out);
+    top: var(--space-1);
+    bottom: var(--space-1);
+    left: var(--space-1);
+    width: calc(50% - var(--space-1));
+    border-radius: var(--radius-pill);
+    background: var(--color-iron-700);
+    transition: transform var(--duration-slow) var(--ease-out-expo), background-color var(--duration-slow) var(--ease-standard), box-shadow var(--duration-slow) var(--ease-standard);
   }
-  .switch[aria-pressed="true"] .switch__track { background: var(--color-harbor); }
-  .switch[aria-pressed="true"] .switch__knob { transform: translateX(1.25rem); box-shadow: 0 0 0 1px rgb(255 201 138 / 0.6), 0 0 14px 2px rgb(255 201 138 / 0.7); }
+  .stage[data-state="dusk"] .seg__thumb {
+    transform: translateX(100%);
+    background: var(--color-harbor);
+    box-shadow: 0 0 0 1px rgb(255 201 138 / 0.5), 0 6px 22px -6px rgb(255 201 138 / 0.65);
+  }
+  /* One-time hint: a soft ring travels out of the Dusk option. */
+  .stage__control.is-hinting [data-scene-set="dusk"]::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    box-shadow: 0 0 0 0 rgb(142 155 255 / 0.6);
+    animation: hint 1.6s var(--ease-out-quart) 0.4s 2;
+  }
+  @keyframes hint { to { box-shadow: 0 0 0 12px rgb(142 155 255 / 0); } }
 
   .stage__caption {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
-    gap: var(--space-3) var(--space-6);
-    margin-top: var(--space-4);
-    min-height: 2.75rem;
+    gap: var(--space-2) var(--space-6);
+    margin-top: var(--space-5);
     color: var(--color-text-muted);
     font-size: var(--text-sm);
   }
   .stage__state { font-weight: var(--font-weight-label); color: var(--color-heading); }
-  .stage__cta.is-in { animation: rise var(--duration-slow) var(--ease-out-expo) both; }
-  @keyframes rise { from { opacity: 0; transform: translateY(8px); } }
 
+  /* Desktop: 16:9 so the whole room and the control fit one screen. The 3:2 photo loses
+     15.6% of its height, a quarter of it from the top: offset 3.9%, visible 84.375%. */
+  @media (min-width: 768px) {
+    /* Short laptop screens: narrow the frame (ratio intact) so room + control fit one screen. */
+    .stage__frame { aspect-ratio: 16 / 9; max-width: calc((100svh - var(--nav-height) - 5rem) * 16 / 9); margin-inline: auto; }
+    .stage__frame :global(.stage__img) { object-position: 50% 25%; }
+    .stage__sparks { --oy: 3.906%; --sh: 0.84375; }
+  }
   @media (max-width: 767px) {
     .stage__frame { aspect-ratio: 4 / 5; }
-    .stage__frame :global(.stage__img) { object-position: 40% 50%; }
-    .stage__control { bottom: var(--space-4); padding-left: var(--space-4); gap: var(--space-3); }
-    .stage__control-label { display: none; }
+    .stage__frame :global(.stage__img) { object-position: 44% 50%; }
+    /* 3:2 photo in a 4:5 frame: 53.3% of the width shows, starting 44% × (1 − 0.533) = 20.55% in. */
+    .stage__sparks { --ox: 20.55%; --sw: 0.5333; }
+    .stage__spark { width: 16%; }
+    .stage__caption { flex-direction: column; align-items: flex-start; text-align: left; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .stage__dusk, .stage__spark, .stage[data-state="dusk"] .stage__spark, .seg__thumb { transition: none; }
   }
 </style>

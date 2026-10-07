@@ -8,7 +8,6 @@
  *   data-reveal         block fades up once on enter; data-reveal-stagger on a parent staggers its [data-reveal] children
  *   data-parallax="n"   yPercent travel, clamped to 15 desktop / 5 mobile
  *   data-hscroll        pinned horizontal track (desktop only; the one pin)
- *   data-scene          dispatches `scene:progress` {progress 0..1} for the Day→Dusk room
  *   data-magnetic       CTA follows the pointer slightly (fine pointer only)
  *   data-glow           sets --mx/--my for a cursor-follow dusk glow (fine pointer only)
  */
@@ -153,16 +152,6 @@ mm.add(
         });
         cleanups.push(() => sec.classList.remove('is-pinned'));
       }
-    }
-
-    // ── Day → Dusk scene progress (scroll-driven; the toggle overrides) ─
-    for (const scene of $$('[data-scene]')) {
-      ScrollTrigger.create({
-        trigger: scene,
-        start: 'top 65%',
-        end: 'center 35%',
-        onUpdate: (st) => scene.dispatchEvent(new CustomEvent('scene:progress', { detail: { progress: st.progress } })),
-      });
     }
 
     // ── Pointer effects ───────────────────────────────────────────────

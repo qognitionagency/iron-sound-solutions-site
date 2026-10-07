@@ -59,6 +59,10 @@ import SectionHead from '../ui/SectionHead.astro';
   .quote__block { margin: 0; }
   .quote__text { margin: 0; font-size: var(--text-lg); line-height: 1.55; color: var(--color-stone-50); }
   .quote__author { margin-top: var(--space-5); font-size: var(--text-sm); font-weight: var(--font-weight-label); color: var(--color-stone-200); letter-spacing: 0.04em; }
+  @media (max-width: 479px) {
+    .quote { padding: var(--space-5); }
+    .quote__text { font-size: var(--text-base); }
+  }
   @media (min-width: 1024px) {
     .quotes { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-5); }
   }

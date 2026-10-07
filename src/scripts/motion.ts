@@ -45,9 +45,16 @@ document.addEventListener('click', (e) => {
   e.preventDefault();
   history.pushState(null, '', a.hash);
   if (lenis) {
-    lenis.scrollTo(target, { offset: navOffset(), duration: 1.2, onComplete: () => focusTarget(target) });
+    // Lenis tracks scroll internally; after a native scroll (scrollbar drag, keyboard, find-in-page)
+    // that state can lag the real position, and an element target computed from it lands short
+    // (measured ~945px short of an anchor). Sync to the real position, then scroll to an absolute y.
+    lenis.scrollTo(window.scrollY, { immediate: true, force: true });
+    const y = target.getBoundingClientRect().top + window.scrollY + navOffset();
+    lenis.scrollTo(y, { duration: 1.2, force: true, onComplete: () => focusTarget(target) });
   } else {
-    target.scrollIntoView({ block: 'start' });
+    // Native scroll honours html { scroll-padding-top } for the fixed header.
+    const smooth = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    target.scrollIntoView({ block: 'start', behavior: smooth ? 'smooth' : 'auto' });
     focusTarget(target);
   }
 });
@@ -70,17 +77,22 @@ mm.add(
       return;
     }
 
-    // ── Lenis smooth scroll ───────────────────────────────────────────
-    lenis = new Lenis({ lerp: 0.11, smoothWheel: true });
-    lenis.on('scroll', ScrollTrigger.update);
-    const raf = (t: number) => lenis?.raf(t * 1000);
-    gsap.ticker.add(raf);
-    gsap.ticker.lagSmoothing(0);
-    cleanups.push(() => {
-      gsap.ticker.remove(raf);
-      lenis?.destroy();
-      lenis = null;
-    });
+    // ── Lenis smooth scroll: mouse/trackpad only ──────────────────────
+    // Touch scrolling is native anyway, and a Lenis scrollTo issued during native touch
+    // momentum computes from stale state and stops short of the anchor. Touch devices
+    // use native smooth scrolling (the click handler above).
+    if (fine) {
+      lenis = new Lenis({ lerp: 0.11, smoothWheel: true });
+      lenis.on('scroll', ScrollTrigger.update);
+      const raf = (t: number) => lenis?.raf(t * 1000);
+      gsap.ticker.add(raf);
+      gsap.ticker.lagSmoothing(0);
+      cleanups.push(() => {
+        gsap.ticker.remove(raf);
+        lenis?.destroy();
+        lenis = null;
+      });
+    }
 
     // ── Split-text display lines ──────────────────────────────────────
     for (const el of $$('[data-split]')) {
@@ -90,6 +102,9 @@ mm.add(
           type: 'lines',
           mask: 'lines',
           autoSplit: true,
+          // Lines only, so every word stays whole and reads normally. The default ('auto') puts an
+          // aria-label on the <p>, a prohibited attribute without a role (axe, Lighthouse).
+          aria: 'none',
           onSplit: (self) =>
             gsap.from(self.lines, {
               yPercent: 110,
@@ -129,7 +144,7 @@ mm.add(
       for (const sec of $$('[data-hscroll]')) {
         const track = sec.querySelector<HTMLElement>('[data-hscroll-track]');
         if (!track) continue;
-        // The pinned layout (a single max-content row) must exist before measuring.
+        // The horizontal layout is already applied by CSS (same media condition); the class only clips.
         sec.classList.add('is-pinned');
         const distance = () => Math.max(0, track.scrollWidth - document.documentElement.clientWidth);
         if (distance() < 40) {
@@ -145,6 +160,10 @@ mm.add(
             start: 'top top',
             end: () => `+=${distance()}`,
             pin: true,
+            // Transform pinning: a fixed-position pin is reported as a layout shift on every
+            // pin/unpin while scrolling (CLS ~1.0 measured); transforms are not.
+            pinType: 'transform',
+            anticipatePin: 1,
             scrub: 0.6,
             invalidateOnRefresh: true,
             onUpdate: (st) => progress?.style.setProperty('--p', st.progress.toFixed(3)),

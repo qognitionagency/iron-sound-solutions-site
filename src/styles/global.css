@@ -130,6 +130,21 @@
      photographer names would otherwise pull Space Grotesk's latin-ext and vietnamese
      subsets (26 KB, VeryHigh priority) into the first-paint network. */
   --font-fineprint: "Helvetica Neue", Arial, sans-serif;
+  /* tokens.css stack with a metric-matched fallback inserted, so the swap to Space Grotesk
+     does not move text (nav shift on load). Same faces, same order otherwise. */
+  --font-body: "Space Grotesk Variable", "Space Grotesk", "Space Grotesk Fallback", "Helvetica Neue", Arial, sans-serif;
+}
+
+/* Arial resized to Space Grotesk's metrics (measured in Chrome 2026-10-07 at 100px:
+   advance width 1.0655x Arial, ascent 0.98, descent 0.29, no line gap). Overrides are
+   divided by size-adjust because size-adjust scales them too. */
+@font-face {
+  font-family: "Space Grotesk Fallback";
+  src: local("Arial"), local("ArialMT");
+  size-adjust: 106.55%;
+  ascent-override: 92%;
+  descent-override: 27.2%;
+  line-gap-override: 0%;
 }
 
 @layer base {

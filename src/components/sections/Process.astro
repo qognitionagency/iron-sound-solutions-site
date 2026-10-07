@@ -127,60 +127,67 @@ const caleb = testimonials.items.find((t) => t.id === processSteps.step4Testimon
     .step__n { position: static; font-size: var(--text-4xl); font-weight: var(--font-weight-body); margin-bottom: var(--space-5); }
   }
 
-  /* Pinned horizontal mode (motion.ts adds .is-pinned on desktop with motion allowed). */
-  .process:global(.is-pinned) {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    min-height: 100svh;
-    padding-block: calc(var(--nav-height) + var(--space-6)) var(--space-7);
+  /* Horizontal mode, from first paint under the same condition motion.ts pins on, so nothing
+     reflows when motion arrives after load (CLS). Without JS the row simply scrolls sideways;
+     motion.ts adds .is-pinned, which only clips it while the pin drives the track. */
+  @media (min-width: 768px) and (prefers-reduced-motion: no-preference) {
+    .process {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-height: 100svh;
+      padding-block: calc(var(--nav-height) + var(--space-6)) var(--space-7);
+    }
+    .process :global(.shead) { margin-bottom: var(--space-6); }
+    .process .process__progress {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      position: relative;
+      padding-top: var(--space-3);
+      font-size: var(--text-xs);
+      letter-spacing: var(--tracking-eyebrow);
+      text-transform: uppercase;
+      color: var(--color-text-muted);
+    }
+    .process .process__progress::before,
+    .process .process__progress::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 1px;
+      width: 100%;
+      background: var(--color-border);
+    }
+    .process .process__progress::after {
+      background: var(--color-brass);
+      height: 2px;
+      transform-origin: left;
+      transform: scaleX(var(--p, 0));
+    }
+    .process .process__viewport { margin-top: var(--space-7); }
+    .process .steps {
+      display: flex;
+      gap: var(--space-6);
+      width: max-content;
+      max-width: none;
+      padding-inline: max(var(--space-gutter), calc((100vw - var(--container-max)) / 2));
+    }
+    .process .step {
+      width: min(34rem, 42vw);
+      min-height: 26rem;
+      padding: var(--space-7);
+      border: 1px solid var(--color-border);
+      border-top: 1px solid var(--color-rule);
+      border-radius: var(--radius-md);
+      background: var(--color-surface);
+      box-shadow: var(--shadow-sm);
+    }
+    .process .step__n { position: static; font-size: var(--text-4xl); font-weight: var(--font-weight-body); margin-bottom: var(--space-6); }
+    .process__viewport { overflow-x: auto; scrollbar-width: none; }
+    .process__viewport::-webkit-scrollbar { display: none; }
+    .process:global(.is-pinned) .process__viewport { overflow: clip; }
   }
-  .process:global(.is-pinned) :global(.shead) { margin-bottom: var(--space-6); }
-  .process:global(.is-pinned) .process__progress {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    position: relative;
-    padding-top: var(--space-3);
-    font-size: var(--text-xs);
-    letter-spacing: var(--tracking-eyebrow);
-    text-transform: uppercase;
-    color: var(--color-text-muted);
-  }
-  .process:global(.is-pinned) .process__progress::before,
-  .process:global(.is-pinned) .process__progress::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 1px;
-    width: 100%;
-    background: var(--color-border);
-  }
-  .process:global(.is-pinned) .process__progress::after {
-    background: var(--color-brass);
-    height: 2px;
-    transform-origin: left;
-    transform: scaleX(var(--p, 0));
-  }
-  .process:global(.is-pinned) .process__viewport { margin-top: var(--space-7); }
-  .process:global(.is-pinned) .steps {
-    display: flex;
-    gap: var(--space-6);
-    width: max-content;
-    max-width: none;
-    padding-inline: max(var(--space-gutter), calc((100vw - var(--container-max)) / 2));
-  }
-  .process:global(.is-pinned) .step {
-    width: min(34rem, 42vw);
-    min-height: 26rem;
-    padding: var(--space-7);
-    border: 1px solid var(--color-border);
-    border-top: 1px solid var(--color-rule);
-    border-radius: var(--radius-md);
-    background: var(--color-surface);
-    box-shadow: var(--shadow-sm);
-  }
-  .process:global(.is-pinned) .step__n { position: static; font-size: var(--text-4xl); font-weight: var(--font-weight-body); margin-bottom: var(--space-6); }
 
   .trade { padding-block: var(--space-9); background: var(--color-surface-sunken); }
   .trade__inner { display: grid; gap: var(--space-4); }

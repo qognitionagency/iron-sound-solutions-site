@@ -1,0 +1,83 @@
+---
+/**
+ * <head>, meta/OG, JSON-LD, font preload, concept ribbon (ADR §2, seo-spec §3–4).
+ * Indexing: noindex,nofollow unless PUBLIC_INDEXABLE=true (ADR §5).
+ */
+import '@fontsource-variable/space-grotesk/wght.css';
+import 'lenis/dist/lenis.css';
+import '../styles/global.css';
+// Archivo is a pinned subset (scripts/subset-archivo.sh, @font-face in global.css). One font preload only:
+// the display face; Space Grotesk is discovered from the inline CSS at first layout.
+import archivoDisplay from '../assets/fonts/archivo-display-subset.woff2?url';
+import { meta, nav } from '../data/content';
+import { absoluteUrl, withBase } from '../lib/url';
+import { buildGraph } from '../lib/schema';
+
+const indexable = import.meta.env.PUBLIC_INDEXABLE === 'true';
+const canonical = absoluteUrl(Astro.site, '');
+const ogImage = absoluteUrl(Astro.site, 'brand/og.png');
+const graph = JSON.stringify(buildGraph(Astro.site)).replace(/</g, '\\u003c');
+---
+<!doctype html>
+<html lang={meta.lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{meta.title}</title>
+    <meta name="description" content={meta.description} />
+    <meta name="robots" content={indexable ? 'index,follow' : 'noindex,nofollow'} />
+    <link rel="canonical" href={canonical} />
+    <meta name="theme-color" content="#F7F6F2" />
+    <meta name="color-scheme" content="light" />
+
+    <link rel="preload" href={archivoDisplay} as="font" type="font/woff2" crossorigin />
+
+    <link rel="icon" href={withBase('brand/favicon.svg')} type="image/svg+xml" />
+    <link rel="icon" href={withBase('favicon-32.png')} sizes="32x32" type="image/png" />
+    <link rel="apple-touch-icon" href={withBase('apple-touch-icon.png')} />
+
+    <meta property="og:type" content={meta.ogType} />
+    <meta property="og:site_name" content={meta.ogSiteName} />
+    <meta property="og:title" content={meta.ogTitle} />
+    <meta property="og:description" content={meta.ogDescription} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={meta.ogImageAlt} />
+    <meta property="og:locale" content={meta.ogLocale} />
+    <meta name="twitter:card" content={meta.twitterCard} />
+
+    <script type="application/ld+json" set:html={graph} />
+  </head>
+  <body>
+    <a class="skip" href="#main">{nav.skipLink}</a>
+    <slot />
+    <script>
+      import '../scripts/analytics';
+      import '../scripts/video';
+      // Motion (GSAP + Lenis, ~55 KB gzip) is not needed for first paint: fetch it after load
+      // so it never competes with the LCP poster or the fonts.
+      const motion = () => import('../scripts/motion');
+      if (document.readyState === 'complete') motion();
+      else window.addEventListener('load', motion, { once: true });
+    </script>
+  </body>
+</html>
+
+<style>
+  .skip {
+    position: fixed;
+    top: var(--space-3);
+    left: var(--space-3);
+    z-index: var(--z-overlay);
+    padding: var(--space-3) var(--space-4);
+    background: var(--color-harbor);
+    color: var(--color-stone-50);
+    border-radius: var(--radius-sm);
+    font-size: var(--text-sm);
+    transform: translateY(-200%);
+    transition: transform var(--duration-fast) var(--ease-standard);
+  }
+  .skip:focus-visible { transform: none; color: var(--color-stone-50); }
+</style>

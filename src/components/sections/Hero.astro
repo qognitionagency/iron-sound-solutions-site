@@ -1,0 +1,200 @@
+---
+/**
+ * Hero (seo-spec §3: the tagline is a display paragraph above the only H1).
+ * LCP = the poster picture (ADR §7). Mobile gets a 4:5 crop anchored right
+ * (art-direction §5.1 asks 70% 40%; sharp takes gravity keywords only); desktop the 16:9 frame. The video's src is assigned by
+ * video.ts after load + idle and fades in over the poster.
+ */
+import { getImage } from 'astro:assets';
+import { hero } from '../../data/content';
+import { poster } from '../../lib/media';
+import { withBase } from '../../lib/url';
+import Button from '../ui/Button.astro';
+
+const src = poster('hero');
+
+interface Crop { ratio: number; position: string; widths: number[]; quality: number }
+async function srcset(format: 'avif' | 'webp', crop: Crop): Promise<string> {
+  const max = Math.max(...crop.widths);
+  const img = await getImage({ src, format, widths: crop.widths, width: max, height: Math.round(max / crop.ratio), fit: 'cover', position: crop.position, quality: crop.quality });
+  return img.srcSet.attribute;
+}
+const mobile: Crop = { ratio: 4 / 5, position: 'right', widths: [480, 640, 828, 1080, 1242], quality: 55 };
+const desktop: Crop = { ratio: 16 / 9, position: 'center', widths: [1024, 1440, 1920, 2560], quality: 64 };
+const mAvif = await srcset('avif', mobile);
+const mWebp = await srcset('webp', mobile);
+const dAvif = await srcset('avif', desktop);
+const dWebp = await srcset('webp', desktop);
+const fallback = await getImage({ src, format: 'jpg', width: 1440, height: 810, fit: 'cover', quality: 70 });
+---
+<section id="top" class="hero" aria-labelledby="hero-heading" data-hero>
+  <div class="hero__media" data-hero-media>
+    <picture>
+      <source media="(max-width: 767px)" type="image/avif" srcset={mAvif} sizes="100vw" />
+      <source media="(max-width: 767px)" type="image/webp" srcset={mWebp} sizes="100vw" />
+      <source type="image/avif" srcset={dAvif} sizes="100vw" />
+      <source type="image/webp" srcset={dWebp} sizes="100vw" />
+      <img
+        class="hero__poster"
+        src={fallback.src}
+        alt={hero.posterAlt}
+        width="1440"
+        height="810"
+        fetchpriority="high"
+        loading="eager"
+        decoding="sync"
+      />
+    </picture>
+    <video
+      class="hero__video"
+      muted
+      playsinline
+      loop
+      preload="none"
+      aria-hidden="true"
+      tabindex="-1"
+      data-hero-video
+      data-src={withBase('media/hero.mp4')}
+    ></video>
+    <div class="hero__scrim" aria-hidden="true"></div>
+  </div>
+
+  <div class="hero__layout frame">
+    <div class="hero__panel" data-hero-panel>
+      <p class="eyebrow hero__area">{hero.areaLine}</p>
+      <p class="display hero__kicker" data-split>{hero.kicker}</p>
+      <h1 id="hero-heading" class="hero__h1">{hero.heading}</h1>
+      <p class="hero__sub">{hero.subhead}</p>
+      <div class="hero__ctas">
+        <Button cta={hero.primary} location="hero" magnetic />
+        <Button cta={hero.secondary} location="hero" variant="secondary" />
+      </div>
+    </div>
+  </div>
+
+  <button type="button" class="hero__motion" data-video-toggle aria-pressed="false" hidden>
+    <svg class="i-pause" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M5 3v10M11 3v10" stroke="currentColor" stroke-width="1.6" /></svg>
+    <svg class="i-play" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M5 3l8 5-8 5Z" fill="currentColor" /></svg>
+    <span class="visually-hidden" data-video-toggle-label>Pause background video</span>
+  </button>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    isolation: isolate;
+    display: grid;
+    min-height: max(40rem, 100svh);
+    max-height: 68rem;
+    padding-top: calc(var(--nav-height) + 2rem);
+    overflow: clip;
+    background: var(--color-stone-200);
+  }
+  .hero__media { position: absolute; inset: 0; z-index: -1; }
+  .hero__media picture, .hero__poster, .hero__video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 70% 40%;
+  }
+  /* 2px shorter than the poster: its first frame must never out-size the poster and become the LCP (ADR §7). */
+  .hero__video { height: calc(100% - 2px); opacity: 0; transition: opacity var(--duration-scene) var(--ease-in-out); }
+  .hero__video.is-playing { opacity: 1; }
+  /* Legibility only: lifts the bottom of the frame under the panel on small screens. */
+  .hero__scrim {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgb(247 246 242 / 0.55), rgb(247 246 242 / 0) 55%);
+  }
+
+  .hero__layout {
+    display: flex;
+    align-items: flex-end;
+    padding-bottom: var(--space-6);
+  }
+  .hero__panel {
+    position: relative;
+    width: 100%;
+    max-width: 38rem;
+    padding: var(--space-6) var(--space-5);
+    background: var(--color-surface-glass);
+    -webkit-backdrop-filter: blur(18px) saturate(1.2);
+    backdrop-filter: blur(18px) saturate(1.2);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-glass);
+  }
+  .hero__panel::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: var(--space-5);
+    right: var(--space-5);
+    height: 1px;
+    background: var(--color-rule);
+  }
+  .hero__area { margin: 0 0 var(--space-4); }
+  .hero__kicker {
+    margin: 0;
+    font-size: var(--text-4xl);
+    text-transform: uppercase;
+  }
+  .hero__h1 {
+    margin: var(--space-5) 0 0;
+    max-width: 30ch;
+    font-family: var(--font-body);
+    font-stretch: normal;
+    font-size: var(--text-lg);
+    font-weight: var(--font-weight-label);
+    line-height: 1.35;
+    letter-spacing: 0;
+    color: var(--color-heading);
+  }
+  .hero__sub { margin: var(--space-3) 0 0; color: var(--color-text-muted); max-width: 46ch; }
+  .hero__ctas { display: flex; flex-wrap: wrap; gap: var(--space-3); margin-top: var(--space-6); }
+
+  .hero__motion {
+    position: absolute;
+    right: var(--space-gutter);
+    bottom: var(--space-5);
+    display: inline-grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-pill);
+    background: var(--color-surface-glass);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    color: var(--color-heading);
+    cursor: pointer;
+  }
+  .hero__motion:focus-visible { outline: none; box-shadow: var(--shadow-focus); }
+  .hero__motion .i-play { display: none; }
+  .hero__motion[aria-pressed="true"] .i-play { display: block; }
+  .hero__motion[aria-pressed="true"] .i-pause { display: none; }
+
+  @media (max-width: 767px) {
+    .hero { display: block; min-height: 0; max-height: none; padding-top: 0; background: var(--color-bg); }
+    .hero__media { position: relative; inset: auto; z-index: 0; height: 62svh; min-height: 24rem; }
+    .hero__scrim { display: none; }
+    .hero__layout { position: relative; z-index: 1; margin-top: -6rem; padding-bottom: var(--space-7); }
+    .hero__kicker { font-size: var(--text-3xl); }
+    .hero__motion { top: calc(var(--nav-height) + 2.75rem); bottom: auto; }
+  }
+  @media (min-width: 768px) {
+    .hero__media picture, .hero__poster, .hero__video { object-position: center; }
+    .hero__scrim { background: linear-gradient(to right, rgb(247 246 242 / 0.35), rgb(247 246 242 / 0) 50%); }
+    .hero__layout { align-items: center; padding-bottom: var(--space-8); }
+    .hero__panel { padding: var(--space-7) var(--space-7) var(--space-7); }
+    .hero__panel::before { left: var(--space-7); right: var(--space-7); }
+  }
+  @media (min-width: 1024px) {
+    .hero__panel { max-width: 40rem; }
+  }
+  /* Wide screens: room for the tagline in three lines; the subject stays in the right 40%. */
+  @media (min-width: 1440px) {
+    .hero__panel { max-width: 50rem; }
+  }
+</style>

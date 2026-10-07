@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100" role="img" aria-labelledby="iss-mark-title">
+  <title id="iss-mark-title">Iron Sound Solutions</title>
+  <!--
+    Construction (100-unit grid, mark box x 14-86, y 10-90):
+    - I-beam: bottom flange 72x10, web 12 wide (verticals +20% for optical balance vs horizontals).
+    - Top flange is the first of three concentric arcs, centre (50,120).
+      Radii: flange 66/76, wave 2 83/93, wave 3 100/110. Band 10, gap 7.
+    - Arc ends cut vertically at x=14 and x=86 so all three waves share the flange width.
+    Harbor = the steel (beam), Iron-blue = the sound (waves).
+  -->
+  <path fill="#25344F" d="M14 90H86V80H56V54.273A66 66 0 0 1 86 64.683V53.067A76 76 0 0 0 14 53.067V64.683A66 66 0 0 1 44 54.273V80H14Z"/>
+  <path fill="#084D8C" d="M14 34.25A93 93 0 0 1 86 34.25V45.214A83 83 0 0 0 14 45.214Z"/>
+  <path fill="#084D8C" d="M14 16.058A110 110 0 0 1 86 16.058V26.705A100 100 0 0 0 14 26.705Z"/>
+</svg>

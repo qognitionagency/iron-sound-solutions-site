@@ -1,0 +1,133 @@
+---
+/**
+ * Every CTA on the page. Renders content.ts `Cta` objects with the analytics
+ * attributes (ADR §6, cro-spec §5) and the form prefill attributes form.ts reads.
+ * Same-page fragments need no withBase(); tel:/mailto: pass through.
+ */
+import type { Cta } from '../../data/content';
+import { withBase } from '../../lib/url';
+
+interface Props {
+  cta: Cta;
+  /** Section key for data-track-location (cro-spec §5). */
+  location: string;
+  variant?: 'primary' | 'secondary' | 'inverse' | 'ghost-inverse' | 'text';
+  size?: 'md' | 'sm';
+  magnetic?: boolean;
+  icon?: 'arrow' | 'phone' | 'none';
+  class?: string;
+  /** Override the visible label (e.g. compact nav button). */
+  label?: string;
+}
+
+const { cta, location, variant = 'primary', size = 'md', magnetic = false, icon, class: cls = '', label } = Astro.props;
+const href = cta.href.startsWith('#') || /^(tel|mailto):/.test(cta.href) ? cta.href : withBase(cta.href);
+const glyph = icon ?? (cta.href.startsWith('tel:') ? 'phone' : variant === 'text' ? 'arrow' : cta.kind === 'primary' || cta.kind === 'contextual' || cta.kind === 'trade' ? 'arrow' : 'none');
+const p = cta.prefill;
+const visible = label ?? cta.label;
+// WCAG 2.5.3 Label in Name: the accessible name must contain the visible text.
+// A longer aria-label that does not is demoted to a description instead.
+const nameOk = !cta.ariaLabel || cta.ariaLabel.toLowerCase().includes(visible.toLowerCase());
+const descId = !nameOk ? `d-${cta.trackId}-${Math.random().toString(36).slice(2, 7)}` : undefined;
+---
+<a
+  href={href}
+  class:list={['btn', `btn--${variant}`, `btn--${size}`, cls]}
+  data-track={cta.track}
+  data-track-id={cta.trackId}
+  data-track-type={cta.kind}
+  data-track-location={location}
+  data-prefill-type={p?.type}
+  data-prefill-scope={p?.scope?.join(',')}
+  data-prefill-stage={p?.stage}
+  data-prefill-role={p?.role}
+  data-magnetic={magnetic ? '' : undefined}
+  aria-label={nameOk ? cta.ariaLabel : undefined}
+  aria-describedby={descId}
+>
+  <span class="btn__label">{visible}</span>
+  {descId && <span id={descId} class="visually-hidden">{cta.ariaLabel}</span>}
+  {glyph === 'arrow' && (
+    <svg class="btn__icon btn__icon--arrow" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false">
+      <path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" />
+    </svg>
+  )}
+  {glyph === 'phone' && (
+    <svg class="btn__icon" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false">
+      <path d="M4.2 1.8 6 4.6 4.7 6.2c.8 1.9 2.2 3.3 4.1 4.1l1.6-1.3 2.8 1.8-.7 2.6c-.2.6-.8 1-1.4.9C5.9 13.6 2.4 10.1 1.8 4.9c-.1-.6.3-1.2.9-1.4l1.5-1.7Z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" />
+    </svg>
+  )}
+</a>
+
+<style>
+  .btn {
+    --btn-bg: transparent;
+    --btn-fg: var(--color-heading);
+    --btn-border: transparent;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-3);
+    min-height: 3rem;
+    padding: var(--space-3) var(--space-5);
+    border: 1px solid var(--btn-border);
+    border-radius: var(--radius-sm);
+    background: var(--btn-bg);
+    color: var(--btn-fg);
+    font-family: var(--font-body);
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-label);
+    letter-spacing: 0.02em;
+    line-height: 1.2;
+    text-decoration: none;
+    white-space: nowrap;
+    transition:
+      background-color var(--duration-fast) var(--ease-standard),
+      border-color var(--duration-fast) var(--ease-standard),
+      color var(--duration-fast) var(--ease-standard),
+      box-shadow var(--duration-base) var(--ease-standard);
+    will-change: transform;
+  }
+  .btn--sm { min-height: 2.5rem; padding: var(--space-2) var(--space-4); }
+  .btn:focus-visible { outline: none; box-shadow: var(--shadow-focus); }
+
+  .btn--primary {
+    --btn-bg: var(--color-accent);
+    --btn-fg: var(--color-on-accent);
+    box-shadow: var(--shadow-sm);
+  }
+  .btn--primary:hover { --btn-bg: var(--color-accent-hover); --btn-fg: var(--color-on-accent); box-shadow: var(--shadow-md); }
+  .btn--primary:active { --btn-bg: var(--color-accent-active); }
+
+  .btn--secondary { --btn-border: var(--color-border-strong); --btn-fg: var(--color-heading); }
+  .btn--secondary:hover { --btn-bg: var(--color-surface); --btn-fg: var(--color-heading); --btn-border: var(--color-heading); }
+
+  /* On the harbor band: stone button, harbor text (11.54:1). */
+  .btn--inverse { --btn-bg: var(--color-stone-50); --btn-fg: var(--color-harbor); }
+  .btn--inverse:hover { --btn-bg: var(--color-surface); --btn-fg: var(--color-harbor); box-shadow: var(--shadow-glow-dusk); }
+  .btn--ghost-inverse { --btn-border: rgb(247 246 242 / 0.4); --btn-fg: var(--color-stone-50); }
+  .btn--ghost-inverse:hover { --btn-border: var(--color-stone-50); --btn-fg: var(--color-stone-50); }
+  .btn--inverse:focus-visible, .btn--ghost-inverse:focus-visible { box-shadow: 0 0 0 2px var(--color-harbor), 0 0 0 4px var(--color-stone-50); }
+
+  .btn--text {
+    min-height: 2.75rem;
+    padding: 0;
+    gap: var(--space-2);
+    color: var(--color-link);
+    border-radius: 0;
+  }
+  .btn--text .btn__label {
+    background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat;
+    transition: background-size var(--duration-base) var(--ease-out-quart);
+    padding-bottom: 2px;
+  }
+  .btn--text:hover { color: var(--color-link-hover); }
+  .btn--text:hover .btn__label, .btn--text:focus-visible .btn__label { background-size: 100% 1px; }
+  .btn--text:focus-visible { box-shadow: none; outline: 2px solid var(--color-focus); outline-offset: 4px; }
+
+  .btn__icon { flex: none; }
+  /* The arrow moves in the direction the link goes. */
+  .btn__icon--arrow { transition: transform var(--duration-base) var(--ease-out-quart); }
+  .btn:hover .btn__icon--arrow, .btn:focus-visible .btn__icon--arrow { transform: translateX(3px); }
+</style>

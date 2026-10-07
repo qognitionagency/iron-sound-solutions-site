@@ -1,0 +1,189 @@
+/* ==========================================================================
+   Iron Sound Solutions — "Coastal Iron" design tokens
+   Light theme only. Tokens first; components consume roles, never primitives.
+   Names follow Tailwind v4 namespaces (--color-*, --radius-*, --shadow-*,
+   --ease-*, --font-*, --text-*, --spacing) so global.css can expose them with
+   `@theme inline { ... }` without renaming.
+   ==========================================================================
+
+   WCAG 2.2 contrast — pairs approved for TEXT (ratios computed from relative
+   luminance, rounded down to 2 dp). Anything not on this list is decorative only.
+
+   AA normal text (>= 4.5:1)
+     --color-ink        #2A2829 on --color-stone-50  #F7F6F2   13.54
+     --color-ink        #2A2829 on --color-stone-200 #E0E0D9   11.04
+     --color-ink        #2A2829 on #FFFFFF                     14.64
+     --color-harbor     #25344F on --color-stone-50            11.54
+     --color-harbor     #25344F on --color-stone-200            9.40
+     --color-harbor     #25344F on --color-iron-100  #D6E7F7    9.88
+     --color-iron-700   #084D8C on --color-stone-50             7.92
+     --color-iron-700   #084D8C on --color-stone-200            6.46
+     --color-iron-700   #084D8C on --color-iron-50   #EEF5FC    7.79
+     --color-iron-700   #084D8C on --color-iron-100             6.78
+     --color-iron-500   #1F6CBA on --color-stone-50             4.96  (links on hover / focus ring)
+     --color-ink-muted  #5A5653 on --color-stone-50             6.71
+     --color-ink-muted  #5A5653 on --color-stone-200            5.47
+     --color-brass-700  #8A6A3A on --color-stone-50             4.62  (small numerals, eyebrow labels)
+     --color-brass-700  #8A6A3A on #FFFFFF                      4.99
+     #FFFFFF            on --color-iron-700 (primary button)    8.56
+     #FFFFFF            on --color-iron-600 #0F5BA3              6.89
+     #FFFFFF            on --color-iron-800 (button :active)   10.88
+     #FFFFFF / stone-50 on --color-harbor (deep band)          12.47 / 11.54
+     --color-harbor     on --color-dusk  #8E9BFF                 4.92  (lighting-section chip)
+
+   Large text / UI components only (>= 3:1)
+     --color-iron-400   #4A8BD1 on #FFFFFF                      3.55
+     --color-brass-700  on --color-stone-200                    3.76
+
+   FAILS — never use for text
+     --color-brass  #B08D57 on stone-50   2.85   (hairlines, rules, icon strokes only)
+     --color-dusk   #8E9BFF on stone-50   2.34   (glows and hover light only)
+   ========================================================================== */
+
+:root {
+  color-scheme: light;
+
+  /* ---------- Primitives: brand ---------- */
+  --color-stone-50:  #F7F6F2;  /* page */
+  --color-stone-100: #EFEEE8;
+  --color-stone-200: #E0E0D9;  /* client's existing light accent: bands, cards */
+  --color-stone-300: #CBCAC1;  /* borders on stone-200 */
+
+  --color-ink:       #2A2829;  /* client's charcoal: body text */
+  --color-ink-muted: #5A5653;  /* secondary text */
+
+  --color-harbor:    #25344F;  /* client's navy: headings, the one deep band */
+
+  /* Iron-blue, hue 211. Brand value sits at 700. */
+  --color-iron-50:  #EEF5FC;
+  --color-iron-100: #D6E7F7;
+  --color-iron-200: #ADCDEE;
+  --color-iron-300: #7DAEE2;
+  --color-iron-400: #4A8BD1;
+  --color-iron-500: #1F6CBA;
+  --color-iron-600: #0F5BA3;
+  --color-iron-700: #084D8C;   /* client's accent: primary CTA, links */
+  --color-iron-800: #083E6F;
+  --color-iron-900: #072F53;
+
+  --color-brass:     #B08D57;  /* hairlines, logo rules */
+  --color-brass-700: #8A6A3A;  /* brass that is allowed to be text */
+  --color-dusk:      #8E9BFF;  /* pool-light glow: hover + lighting section only */
+
+  /* ---------- Roles ---------- */
+  --color-bg:              var(--color-stone-50);
+  --color-surface:         #FFFFFF;
+  --color-surface-sunken:  var(--color-stone-200);
+  --color-surface-glass:   rgb(247 246 242 / 0.72);   /* hero panel; pair with backdrop-filter: blur(18px) saturate(1.2) */
+  --color-surface-deep:    var(--color-harbor);       /* blue, not black */
+  --color-text:            var(--color-ink);
+  --color-text-muted:      var(--color-ink-muted);
+  --color-heading:         var(--color-harbor);
+  --color-text-on-deep:    var(--color-stone-50);
+  --color-link:            var(--color-iron-700);
+  --color-link-hover:      var(--color-iron-500);
+  --color-accent:          var(--color-iron-700);
+  --color-accent-hover:    var(--color-iron-600);
+  --color-accent-active:   var(--color-iron-800);
+  --color-on-accent:       #FFFFFF;
+  --color-border:          var(--color-stone-300);
+  --color-border-strong:   rgb(37 52 79 / 0.24);
+  --color-rule:            var(--color-brass);
+  --color-focus:           var(--color-iron-500);
+  --color-glow:            var(--color-dusk);
+  --color-error:           #A3261B;   /* 6.81:1 on stone-50 */
+  --color-success:         #1E6B45;   /* 5.98:1 on stone-50 */
+
+  /* ---------- Type ---------- */
+  --font-display: "Archivo Variable", "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --font-body:    "Space Grotesk Variable", "Space Grotesk", "Helvetica Neue", Arial, sans-serif;
+  --font-display-stretch: 118%;     /* font-stretch for Archivo display; range 112-125 */
+  --font-weight-display: 780;
+  --font-weight-heading: 720;
+  --font-weight-body: 400;
+  --font-weight-label: 500;
+
+  /* Fluid scale: min at 360px viewport, max at 1440px. */
+  --text-xs:   clamp(0.75rem,   0.7292rem + 0.0926vw, 0.8125rem);
+  --text-sm:   clamp(0.8125rem, 0.7917rem + 0.0926vw, 0.875rem);
+  --text-base: clamp(1rem,      0.9583rem + 0.1852vw, 1.125rem);
+  --text-lg:   clamp(1.125rem,  1.0417rem + 0.3704vw, 1.375rem);
+  --text-xl:   clamp(1.375rem,  1.25rem   + 0.5556vw, 1.75rem);
+  --text-2xl:  clamp(1.625rem,  1.4167rem + 0.9259vw, 2.25rem);
+  --text-3xl:  clamp(2rem,      1.5833rem + 1.8519vw, 3.25rem);
+  --text-4xl:  clamp(2.5rem,    1.8333rem + 2.963vw,  4.5rem);   /* hero display */
+
+  --leading-display: 0.98;
+  --leading-heading: 1.12;
+  --leading-body: 1.6;
+  --tracking-display: -0.01em;   /* expanded faces need little negative tracking */
+  --tracking-eyebrow: 0.24em;    /* uppercase labels, echoing SOLUTIONS in the logo */
+  --measure: 66ch;
+
+  /* ---------- Space (4px base) ---------- */
+  --spacing: 0.25rem;
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4rem;
+  --space-9: 6rem;
+  --space-10: 8rem;
+  --space-gutter:  clamp(1.25rem, 0.8333rem + 1.8519vw, 2.5rem);
+  --space-section: clamp(4rem,    2.6667rem + 5.9259vw, 8rem);
+  --container-max: 80rem;      /* 1280px content */
+  --container-wide: 96rem;     /* 1536px for full-bleed bands with inset text */
+
+  /* ---------- Radius (architectural: tight) ---------- */
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+  --radius-pill: 999px;
+
+  /* ---------- Elevation (harbor-tinted, layered; no grey) ---------- */
+  --shadow-xs: 0 1px 2px rgb(37 52 79 / 0.06);
+  --shadow-sm: 0 1px 2px rgb(37 52 79 / 0.05), 0 3px 8px -2px rgb(37 52 79 / 0.07);
+  --shadow-md: 0 1px 2px rgb(37 52 79 / 0.04), 0 6px 16px -4px rgb(37 52 79 / 0.08),
+               0 14px 32px -12px rgb(8 77 140 / 0.12);
+  --shadow-lg: 0 2px 4px rgb(37 52 79 / 0.04), 0 16px 32px -8px rgb(37 52 79 / 0.10),
+               0 36px 72px -24px rgb(8 77 140 / 0.18);
+  --shadow-glass: inset 0 1px 0 rgb(255 255 255 / 0.65), 0 1px 2px rgb(37 52 79 / 0.06),
+                  0 24px 60px -20px rgb(37 52 79 / 0.28);
+  --shadow-glow-dusk: 0 0 0 1px rgb(142 155 255 / 0.35), 0 10px 36px -8px rgb(142 155 255 / 0.55);
+  --shadow-focus: 0 0 0 2px var(--color-bg), 0 0 0 4px var(--color-focus);
+
+  /* ---------- Motion ---------- */
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);        /* UI state changes */
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);    /* entrances */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);     /* headline reveals, parallax settle */
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);      /* Day-to-Dusk crossfade, switcher */
+  --ease-in: cubic-bezier(0.5, 0, 0.75, 0);           /* exits */
+  --duration-instant: 120ms;
+  --duration-fast: 200ms;
+  --duration-base: 320ms;
+  --duration-slow: 600ms;
+  --duration-scene: 1200ms;   /* lighting toggle: lamps come up slower than UI */
+
+  /* ---------- Layers ---------- */
+  --z-base: 0;
+  --z-raised: 10;
+  --z-sticky: 100;
+  --z-nav: 200;
+  --z-overlay: 300;
+  --z-ribbon: 400;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-instant: 0.01ms;
+    --duration-fast: 0.01ms;
+    --duration-base: 0.01ms;
+    --duration-slow: 0.01ms;
+    --duration-scene: 0.01ms;
+  }
+}

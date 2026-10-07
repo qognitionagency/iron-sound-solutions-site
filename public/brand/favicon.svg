@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!--
+    Favicon. Small-size cut of the mark: bands 12 (not 10), gaps 8 (not 7), web 14,
+    arc centre dropped to (50,150) so the waves flatten and the inner wave clears the
+    bottom flange by 8 units. At 16px: band ~1.6px, gap ~1px. At 32px: band 3.2px, gap 2.1px.
+    Tile: iron-blue, radius 14/64 (22%).
+  -->
+  <rect width="64" height="64" rx="14" fill="#084D8C"/>
+  <g transform="translate(5.75 5.75) scale(0.525)" fill="#FFFFFF">
+    <path d="M14 90H86V78H57V62.28A88 88 0 0 1 86 69.7V56.705A100 100 0 0 0 14 56.705V69.7A88 88 0 0 1 43 62.28V78H14Z"/>
+    <path d="M14 35.53A120 120 0 0 1 86 35.53V48.18A108 108 0 0 0 14 48.18Z"/>
+    <path d="M14 14.71A140 140 0 0 1 86 14.71V27.17A128 128 0 0 0 14 27.17Z"/>
+  </g>
+</svg>

@@ -1,0 +1,83 @@
+---
+import { footer } from '../../data/content';
+import { stockAuthors } from '../../lib/media';
+import { withBase } from '../../lib/url';
+import Button from '../ui/Button.astro';
+
+const authors = stockAuthors();
+---
+<footer class="footer">
+  <div class="frame footer__grid">
+    <div class="footer__brand">
+      <img src={withBase('brand/logo-stacked.svg')} alt={footer.nap.name} width="461" height="227" loading="lazy" class="footer__logo" />
+      <p class="footer__tag">{footer.tagline}</p>
+    </div>
+
+    <address class="footer__nap">
+      <span class="footer__name">{footer.nap.name}</span>
+      <Button cta={footer.nap.phone} location="footer" variant="text" icon="none" />
+      <Button cta={footer.nap.email} location="footer" variant="text" icon="none" />
+      <span>{footer.nap.area}</span>
+      <a href={footer.nap.instagram.href} class="link-draw" rel="noopener" target="_blank">{footer.nap.instagram.label}</a>
+    </address>
+
+    <nav class="footer__nav" aria-label="Footer">
+      <ul role="list">
+        {footer.links.map((l) => <li><a href={l.href} class="link-draw">{l.label}</a></li>)}
+        <li><a href="#top" class="link-draw">{footer.backToTop}</a></li>
+      </ul>
+    </nav>
+  </div>
+
+  <div class="frame footer__fine">
+    <p class="footer__concept">{footer.concept}</p>
+    <p>
+      <a href={footer.credits.pexels.href} rel="noopener" target="_blank" class="link-draw">{footer.credits.pexels.label}</a>.
+      {' '}{footer.credits.authorsPrefix}{' '}
+      {authors.map((a, i) => (
+        <>
+          <a href={a.authorUrl} rel="noopener" target="_blank" class="link-draw">{a.author}</a>{i < authors.length - 2 ? ', ' : i === authors.length - 2 ? ' and ' : '.'}
+        </>
+      ))}
+      {' '}{footer.credits.clientPhotos}
+    </p>
+    <p>{footer.trademarks}</p>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    padding-block: var(--space-9) var(--space-7);
+    background: var(--color-surface-sunken);
+    border-top: 1px solid var(--color-rule);
+    font-size: var(--text-sm);
+  }
+  .footer__grid { display: grid; gap: var(--space-7); }
+  .footer__logo { width: 10rem; height: auto; }
+  .footer__tag { margin: var(--space-4) 0 0; font-family: var(--font-display); font-stretch: var(--font-display-stretch); font-weight: var(--font-weight-heading); text-transform: uppercase; letter-spacing: 0.04em; color: var(--color-harbor); font-size: var(--text-sm); }
+  .footer__nap { display: grid; justify-items: start; gap: var(--space-1); font-style: normal; color: var(--color-text); }
+  .footer__nap :global(.btn--text) { min-height: 2.25rem; }
+  .footer__name { font-weight: var(--font-weight-heading); color: var(--color-heading); margin-bottom: var(--space-2); }
+  .footer__nav ul { display: grid; gap: var(--space-2); margin: 0; padding: 0; list-style: none; }
+  .footer__nav a, .footer__nap a.link-draw { color: var(--color-heading); }
+  .footer__fine {
+    display: grid;
+    gap: var(--space-3);
+    margin-top: var(--space-8);
+    padding-top: var(--space-5);
+    border-top: 1px solid var(--color-stone-300);
+    color: var(--color-text-muted);
+    font-family: var(--font-fineprint);
+    font-size: var(--text-xs);
+    line-height: 1.6;
+  }
+  .footer__fine p { margin: 0; max-width: 110ch; }
+  .footer__fine a { color: var(--color-ink); }
+  .footer__concept { color: var(--color-heading); font-weight: var(--font-weight-label); }
+  @media (min-width: 768px) {
+    .footer__grid { grid-template-columns: 1.2fr 1fr 0.8fr; }
+  }
+  @media (max-width: 767px) {
+    .footer { padding-bottom: calc(var(--space-7) + var(--mobilebar-height) + env(safe-area-inset-bottom)); }
+  }
+</style>

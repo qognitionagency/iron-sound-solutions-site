@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" width="180" height="180">
+  <!--
+    apple-touch-icon SOURCE. Rasterise to /public/apple-touch-icon.png at 180x180, sRGB, no alpha.
+    Full-bleed square: iOS applies its own corner mask, so no rounded corners and no transparency here.
+    Mark (small-size cut, as favicon.svg) at 99 units tall = 55% of the tile, optically centred
+    (nudged up 2 units because the heavy top waves read lower than the geometric centre).
+    Tile: vertical iron-blue gradient, 600 to 700 of the token scale, for a little depth on the home screen.
+  -->
+  <defs>
+    <linearGradient id="iss-touch-bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0F5BA3"/>
+      <stop offset="1" stop-color="#084D8C"/>
+    </linearGradient>
+  </defs>
+  <rect width="180" height="180" fill="url(#iss-touch-bg)"/>
+  <g transform="translate(28.125 26.125) scale(1.2375)" fill="#FFFFFF">
+    <path d="M14 90H86V78H57V62.28A88 88 0 0 1 86 69.7V56.705A100 100 0 0 0 14 56.705V69.7A88 88 0 0 1 43 62.28V78H14Z"/>
+    <path d="M14 35.53A120 120 0 0 1 86 35.53V48.18A108 108 0 0 0 14 48.18Z"/>
+    <path d="M14 14.71A140 140 0 0 1 86 14.71V27.17A128 128 0 0 0 14 27.17Z"/>
+  </g>
+</svg>

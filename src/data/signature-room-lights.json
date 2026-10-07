@@ -1,0 +1,17 @@
+{
+  "$comment": "Light sources in src/assets/media/signature-room.jpg (Pexels 31817162), as % of image width/height. Read off a 10% grid on 2026-10-07. Used by Lighting.astro to place dusk glows (art-direction.md §5.4). kind: lamp = warm 2700K glow, pool = dusk violet, cove = warm strip.",
+  "windows": { "x": 9, "y": 0, "w": 41, "h": 62 },
+  "lights": [
+    { "x": 42.5, "y": 6,  "r": 5,  "kind": "lamp" },
+    { "x": 43,   "y": 19, "r": 6,  "kind": "lamp" },
+    { "x": 50.5, "y": 22, "r": 6,  "kind": "lamp" },
+    { "x": 46.5, "y": 30, "r": 6,  "kind": "lamp" },
+    { "x": 43,   "y": 33, "r": 6,  "kind": "lamp" },
+    { "x": 49.5, "y": 33, "r": 6,  "kind": "lamp" },
+    { "x": 46.5, "y": 36, "r": 5,  "kind": "lamp" },
+    { "x": 63,   "y": 42, "r": 7,  "kind": "lamp" },
+    { "x": 29,   "y": 56, "r": 14, "kind": "pool" },
+    { "x": 64,   "y": 64, "r": 16, "kind": "cove" },
+    { "x": 42,   "y": 66, "r": 14, "kind": "cove" }
+  ]
+}

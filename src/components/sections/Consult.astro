@@ -1,0 +1,479 @@
+---
+/**
+ * Six-step consultation form (cro-spec §3) on Luke's contract (docs/form-module.md).
+ * Without JS every step renders and the form posts natively to the endpoint.
+ * Five states: idle, invalid, submitting, success (+ demo notice), error.
+ */
+import { contact, form, sectors } from '../../data/content';
+import Button from '../ui/Button.astro';
+import Choices from '../ui/Choices.astro';
+import { httpsOnly } from '../../lib/url';
+
+// No-JS fallback POST target: https:// only (otherwise no action; JS runs demo mode).
+const endpoint = httpsOnly(import.meta.env.PUBLIC_FORM_ENDPOINT);
+const tpl = (s: string) => s.replace('{current}', '{n}').replace('{total}', '{total}').replace('{step}', '{title}');
+const imageFor = (key: string) => sectors.panels.find((p) => p.id === key)?.media.slot;
+const typeOpts = form.type.options.map((o) => ({ ...o, image: imageFor(o.key) }));
+const budgetOpts = [
+  ...form.budget.bands.map((b) => ({ key: b.key, label: b.label, marker: b.marker })),
+  { key: 'guidance', label: form.budget.guidance },
+  { key: 'not_say', label: form.budget.notSay },
+];
+const [succPre, succPost] = form.success.heading.split('{firstName}');
+// Error fallback sentence with live links for the email and phone it names.
+const fb = form.error.fallback;
+const iE = fb.indexOf(contact.email);
+const iP = fb.indexOf(contact.phoneDisplay);
+const fallbackOk = iE >= 0 && iP > iE;
+const counterTpl = form.contact.notes.counter;
+---
+<section id="consult" class="section consult" aria-labelledby="consult-heading">
+  <div class="frame consult__grid">
+    <div class="consult__intro">
+      <p class="display consult__display" data-split>{form.display}</p>
+      <h2 id="consult-heading" class="consult__h2">{form.heading}</h2>
+      <p class="consult__lede">{form.intro}</p>
+      <p class="consult__call">
+        <span>{form.callAlt.prefix}</span>
+        <Button cta={form.callAlt.cta} location="form" variant="text" />
+      </p>
+    </div>
+
+    <form id="consult-form" class="card" action={endpoint} method="post" novalidate data-consult data-mailto-subject={form.error.mailtoSubject}>
+      <div class="card__top" data-js-only hidden>
+        <p class="card__progress-text" data-progress-text data-template={tpl(form.progress)}></p>
+        <div class="card__progress" data-progress role="progressbar" aria-label={form.heading}><span></span></div>
+      </div>
+      <p class="visually-hidden" data-live aria-live="polite" data-live-step={tpl(form.progressLive)}></p>
+
+      <input type="hidden" name="lead_id" />
+      <input type="hidden" name="entry_cta" />
+      <input type="hidden" name="utm_source" />
+      <input type="hidden" name="utm_medium" />
+      <input type="hidden" name="utm_campaign" />
+      <div class="visually-hidden" aria-hidden="true">
+        <label>{form.contact.honeypot.label} <input name="website" tabindex="-1" autocomplete="off" /></label>
+      </div>
+
+      <!-- 1 · type -->
+      <fieldset class="step" data-step="type">
+        <legend class="step__legend">{form.type.legend}</legend>
+        <div data-field data-error={form.type.error}>
+          <Choices name="type" type="radio" options={typeOpts} required variant="cards" idPrefix="f-type" />
+        </div>
+        <div class="step__nav">
+          <button type="button" class="btn-next" data-next data-js-only hidden>{form.type.next}</button>
+        </div>
+      </fieldset>
+
+      <!-- 2 · scope -->
+      <fieldset class="step" data-step="scope">
+        <legend class="step__legend">{form.scope.legend}</legend>
+        <p class="step__help">{form.scope.helper}</p>
+        {(['residential', 'commercial', 'marine'] as const).map((t) => (
+          <div data-field data-required-group data-error={form.scope.error} data-show-if={`type=${t}`}>
+            <Choices name="scope" type="checkbox" options={form.scope.options[t]} idPrefix={`f-scope-${t}`} />
+          </div>
+        ))}
+        <div class="step__nav">
+          <button type="button" class="btn-back" data-back data-js-only hidden>{form.back}</button>
+          <button type="button" class="btn-next" data-next data-js-only hidden>{form.scope.next}</button>
+        </div>
+      </fieldset>
+
+      <!-- 3 · stage -->
+      <fieldset class="step" data-step="stage">
+        <legend class="step__legend">{form.stepNames.stage}</legend>
+        <div data-show-if="type=residential|commercial">
+          <fieldset class="group">
+            <legend class="group__legend">{form.stage.land.legend}</legend>
+            <div data-field data-error={form.stage.error}>
+              <Choices name="stage" type="radio" options={form.stage.land.options} required idPrefix="f-stage-land" />
+            </div>
+          </fieldset>
+          <div data-show-if="stage=new_build|renovation">
+            <fieldset class="group">
+              <legend class="group__legend">{form.stage.land.teamLegend}</legend>
+              <Choices name="team" type="radio" options={form.stage.land.teamOptions} idPrefix="f-team" />
+            </fieldset>
+          </div>
+        </div>
+        <div data-show-if="type=marine">
+          <p class="group__lead">{form.stage.boat.legend}</p>
+          <fieldset class="group">
+            <legend class="group__legend">{form.stage.boat.stageLabel}</legend>
+            <div data-field data-error={form.stage.error}>
+              <Choices name="stage" type="radio" options={form.stage.boat.options} required idPrefix="f-stage-boat" />
+            </div>
+          </fieldset>
+          <fieldset class="group">
+            <legend class="group__legend">{form.stage.boat.lengthLabel}</legend>
+            <div data-field data-error={form.stage.error}>
+              <Choices name="vessel_length" type="radio" options={form.stage.boat.lengthOptions} required idPrefix="f-len" />
+            </div>
+          </fieldset>
+          <fieldset class="group">
+            <legend class="group__legend">{form.stage.boat.typeLabel}</legend>
+            <Choices name="vessel_type" type="radio" options={form.stage.boat.typeOptions} idPrefix="f-vtype" />
+          </fieldset>
+        </div>
+        <div class="step__nav">
+          <button type="button" class="btn-back" data-back data-js-only hidden>{form.back}</button>
+          <button type="button" class="btn-next" data-next data-js-only hidden>{form.stage.next}</button>
+        </div>
+      </fieldset>
+
+      <!-- 4 · budget (optional) -->
+      <fieldset class="step" data-step="budget">
+        <legend class="step__legend">{form.budget.legend}</legend>
+        <p class="step__help">{form.budget.helper}</p>
+        <Choices name="budget" type="radio" options={budgetOpts} idPrefix="f-budget" />
+        <div class="step__nav">
+          <button type="button" class="btn-back" data-back data-js-only hidden>{form.back}</button>
+          <button type="button" class="btn-next" data-next data-js-only hidden>{form.budget.next}</button>
+        </div>
+      </fieldset>
+
+      <!-- 5 · timeline -->
+      <fieldset class="step" data-step="timeline">
+        <legend class="step__legend">{form.timeline.legend}</legend>
+        <div data-field data-error={form.timeline.error}>
+          <Choices name="timeline" type="radio" options={form.timeline.options} required idPrefix="f-time" />
+        </div>
+        <div class="step__nav">
+          <button type="button" class="btn-back" data-back data-js-only hidden>{form.back}</button>
+          <button type="button" class="btn-next" data-next data-js-only hidden>{form.timeline.next}</button>
+        </div>
+      </fieldset>
+
+      <!-- 6 · contact -->
+      <fieldset class="step" data-step="contact">
+        <legend class="step__legend">{form.contact.legend}</legend>
+        <div class="fields">
+          <div class="field" data-field>
+            <label for="f-name">{form.contact.name.label}</label>
+            <input id="f-name" name="name" autocomplete="name" required minlength="2" maxlength="120" data-error={form.contact.name.error} />
+          </div>
+          <div class="field" data-field>
+            <label for="f-email">{form.contact.email.label}</label>
+            <input id="f-email" name="email" type="email" autocomplete="email" required maxlength="200" data-error={form.contact.email.error} />
+          </div>
+          <div class="field" data-field>
+            <label for="f-phone">{form.contact.phone.label}</label>
+            <input id="f-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" data-validate="phone" aria-describedby="f-phone-hint" data-error={form.contact.phone.error} />
+            <p class="field__hint" id="f-phone-hint">{form.contact.phone.hint}</p>
+          </div>
+          <div class="field field--full" data-show-if="type=residential|commercial" data-field>
+            <label for="f-loc-land">{form.contact.location.labelLand}</label>
+            <input id="f-loc-land" name="location" autocomplete="address-level2" required maxlength="80" data-error={form.contact.location.error} />
+          </div>
+          <div class="field field--full" data-show-if="type=marine" data-field>
+            <label for="f-loc-boat">{form.contact.location.labelBoat}</label>
+            <input id="f-loc-boat" name="location" required maxlength="80" data-error={form.contact.location.error} />
+          </div>
+        </div>
+
+        <fieldset class="group">
+          <legend class="group__legend">{form.contact.contactPref.legend}</legend>
+          <div data-field data-error={form.contact.contactPref.error}>
+            <Choices name="contact_pref" type="radio" options={form.contact.contactPref.options} required idPrefix="f-pref" />
+          </div>
+        </fieldset>
+        <div class="field" data-field data-show-if="contact_pref=text">
+          <label class="check">
+            <input type="checkbox" name="sms_consent" value="yes" required data-error={form.contact.smsConsent.error} />
+            <span>{form.contact.smsConsent.label}</span>
+          </label>
+        </div>
+
+        <fieldset class="group">
+          <legend class="group__legend">{form.contact.role.label}</legend>
+          <Choices name="role" type="radio" options={form.contact.role.options} idPrefix="f-role" />
+        </fieldset>
+
+        <div class="field" data-field>
+          <label for="f-notes">{form.contact.notes.label}</label>
+          <textarea id="f-notes" name="notes" rows="4" maxlength="1000" aria-describedby="f-notes-hint f-notes-count" data-error={form.contact.notes.error}></textarea>
+          <p class="field__hint field__hint--row">
+            <span id="f-notes-hint">{form.contact.notes.hint}</span>
+            <span id="f-notes-count" class="field__count" data-counter data-template={counterTpl} data-js-only hidden></span>
+          </p>
+        </div>
+
+        <label class="check">
+          <input type="checkbox" name="email_optin" value="yes" />
+          <span>{form.contact.emailOptIn.label}</span>
+        </label>
+
+        <div class="alert" data-error-panel hidden role="alert">
+          <p class="alert__h">{form.error.heading}</p>
+          <p>{form.error.body}</p>
+          <p>
+            {fallbackOk ? (
+              <>
+                {fb.slice(0, iE)}<a href={contact.emailHref} data-mailto data-track-id="form_error_email" data-track-location="form">{contact.email}</a>{fb.slice(iE + contact.email.length, iP)}<a href={contact.phoneHref} data-track-id="form_error_call" data-track-location="form">{contact.phoneDisplay}</a>{fb.slice(iP + contact.phoneDisplay.length)}
+              </>
+            ) : fb}
+          </p>
+          <button type="button" class="btn-next" data-retry>{form.error.retry}</button>
+        </div>
+
+        <div class="step__nav step__nav--submit">
+          <button type="button" class="btn-back" data-back data-js-only hidden>{form.back}</button>
+          <button type="submit" class="btn-submit" data-busy-label={form.submitting}><span data-label>{form.submit}</span></button>
+        </div>
+        <p class="card__data">{form.dataUse}</p>
+      </fieldset>
+
+      <div class="success" data-success hidden>
+        <h3 class="success__h" data-success-heading>{succPre}<span data-first-name></span>{succPost}</h3>
+        <dl class="success__recap">
+          {(['type', 'scope', 'stage', 'timeline'] as const).map((k) => (
+            <div><dt>{form.success.recapLabels[k]}</dt><dd data-fill={k}></dd></div>
+          ))}
+        </dl>
+        <p>{form.success.next}</p>
+        <p><a href={contact.phoneHref} data-track-id="form_success_call" data-track-location="form">{form.success.callLine}</a></p>
+        <p class="success__demo" data-demo-notice hidden>{form.demoNotice}</p>
+      </div>
+    </form>
+  </div>
+</section>
+
+<script>
+  import { initMultiStepForm } from '../../scripts/form';
+
+  const root = document.querySelector<HTMLFormElement>('[data-consult]');
+  if (root) {
+    const v = (d: FormData, k: string) => String(d.get(k) ?? '');
+    initMultiStepForm(root, {
+      // Enums, counts and booleans only (form-module.md; cro-spec §5).
+      params: (event, d) =>
+        event === 'form_step'
+          ? { project_type: v(d, 'type') }
+          : event === 'form_submit'
+            ? {
+                project_type: v(d, 'type'),
+                scope_count: d.getAll('scope').length,
+                stage: v(d, 'stage'),
+                vessel_length_band: v(d, 'vessel_length') || undefined,
+                budget_band: v(d, 'budget') || 'skipped',
+                timeline: v(d, 'timeline'),
+                role: v(d, 'role') || undefined,
+                contact_pref: v(d, 'contact_pref'),
+                has_phone: v(d, 'phone').trim().length > 0,
+                team_involved: v(d, 'team') || undefined,
+              }
+            : {},
+      onState: (state, d) => {
+        if (state === 'success') {
+          const first = v(d, 'name').trim().split(/\s+/)[0] ?? '';
+          const el = root.querySelector('[data-first-name]');
+          if (el) el.textContent = first;
+        }
+        if (state === 'error') {
+          // mailto subject carries the project type only, never PII (cro-spec §3).
+          const subject = root.dataset.mailtoSubject ?? '';
+          const typeLabel = root.querySelector<HTMLInputElement>('input[name="type"]:checked')?.closest('label')?.textContent?.trim() ?? '';
+          root.querySelectorAll<HTMLAnchorElement>('[data-mailto]').forEach((a) => {
+            a.href = `${a.href.split('?')[0]}?subject=${encodeURIComponent(subject.replace('{projectType}', typeLabel))}`;
+          });
+        }
+      },
+    });
+
+    // Notes counter (not part of form.ts).
+    const notes = root.querySelector<HTMLTextAreaElement>('#f-notes');
+    const counter = root.querySelector<HTMLElement>('[data-counter]');
+    if (notes && counter) {
+      const max = notes.maxLength;
+      // Not a live region: it is in the textarea's description, read on focus, not on every keystroke.
+      const update = () => {
+        const used = notes.value.length;
+        counter.textContent = counter.dataset.template!.replace('{used}', used.toLocaleString('en-US'));
+        counter.classList.toggle('is-near', used > max * 0.9);
+      };
+      notes.addEventListener('input', update);
+      update();
+    }
+  }
+</script>
+
+<style>
+  .consult { background: var(--color-stone-100); }
+  .consult__grid { display: grid; gap: var(--space-7); align-items: start; }
+  .consult__display { margin: 0; font-size: var(--text-3xl); max-width: 14ch; }
+  .consult__h2 {
+    margin: var(--space-5) 0 0;
+    font-family: var(--font-body);
+    font-stretch: normal;
+    font-size: var(--text-base);
+    font-weight: var(--font-weight-label);
+    letter-spacing: 0;
+    color: var(--color-text-muted);
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-3);
+  }
+  .consult__h2::before { content: ""; width: var(--space-6); height: 1px; background: var(--color-rule); transform: translateY(-0.3em); }
+  .consult__lede { margin: var(--space-5) 0 0; max-width: 42ch; }
+  .consult__call { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-1) var(--space-3); margin: var(--space-6) 0 0; color: var(--color-text-muted); }
+
+  .card {
+    position: relative;
+    padding: var(--space-6) var(--space-5);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-top: 2px solid var(--color-brass);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+  }
+  .card__top { display: grid; gap: var(--space-2); margin-bottom: var(--space-6); }
+  .card__progress-text { margin: 0; font-size: var(--text-xs); letter-spacing: var(--tracking-eyebrow); text-transform: uppercase; color: var(--color-brass-700); }
+  .card__progress { height: 2px; background: var(--color-stone-200); overflow: hidden; }
+  .card__progress span { display: block; height: 100%; background: var(--color-iron-700); transform-origin: left; transform: scaleX(var(--progress, 0)); transition: transform var(--duration-slow) var(--ease-out-expo); }
+  .card__data { margin: var(--space-4) 0 0; font-size: var(--text-xs); color: var(--color-text-muted); }
+
+  .step { margin: 0; padding: 0; border: 0; min-width: 0; }
+  .step + .step { margin-top: var(--space-8); }
+  :global([data-consult][data-state]) .step + .step { margin-top: 0; }
+  .step:not([hidden]) { animation: step-in var(--duration-slow) var(--ease-out-expo); }
+  @keyframes step-in { from { opacity: 0; transform: translateX(12px); } }
+  .step__legend {
+    padding: 0;
+    margin-bottom: var(--space-5);
+    font-family: var(--font-display);
+    font-stretch: var(--font-display-stretch);
+    font-weight: var(--font-weight-heading);
+    font-size: var(--text-2xl);
+    line-height: var(--leading-heading);
+    color: var(--color-heading);
+  }
+  .step__legend:focus { outline: none; }
+  .step__legend:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 4px; }
+  .step__help { margin: calc(-1 * var(--space-3)) 0 var(--space-5); font-size: var(--text-sm); color: var(--color-text-muted); }
+  .step [data-show-if] + [data-show-if] { margin-top: var(--space-3); }
+
+  .group { margin: var(--space-5) 0 0; padding: 0; border: 0; min-width: 0; }
+  .group__legend, .group__lead { padding: 0; margin: 0 0 var(--space-3); font-size: var(--text-sm); font-weight: var(--font-weight-label); color: var(--color-heading); }
+  .group__lead { font-size: var(--text-base); }
+
+  .fields { display: grid; gap: var(--space-4); align-items: start; }
+  .field { display: grid; gap: var(--space-2); margin-top: var(--space-4); }
+  .fields .field { margin-top: 0; }
+  .field label { font-size: var(--text-sm); font-weight: var(--font-weight-label); color: var(--color-heading); }
+  .field input, .field textarea {
+    width: 100%;
+    min-height: 3rem;
+    padding: var(--space-3) var(--space-4);
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-sm);
+    background: var(--color-surface);
+    color: var(--color-text);
+    font: inherit;
+    font-size: var(--text-base);
+    transition: border-color var(--duration-fast) var(--ease-standard), box-shadow var(--duration-fast) var(--ease-standard);
+  }
+  .field textarea { resize: vertical; min-height: 7rem; }
+  .field input:hover, .field textarea:hover { border-color: var(--color-iron-400); }
+  .field input:focus-visible, .field textarea:focus-visible { outline: none; border-color: var(--color-iron-500); box-shadow: 0 0 0 3px var(--color-iron-100); }
+  .field__hint { margin: 0; font-size: var(--text-xs); color: var(--color-text-muted); }
+  .field__hint--row { display: flex; justify-content: space-between; gap: var(--space-4); }
+  .field__count { flex: none; font-variant-numeric: tabular-nums; }
+  .field__count:global(.is-near) { color: var(--color-error); }
+
+  /* Invalid state (form.ts sets aria-invalid and appends the message to [data-field]). */
+  .card :global([aria-invalid="true"]) { border-color: var(--color-error) !important; }
+  /*
+    Every text field reserves exactly one error line, so blur validation never moves what is below
+    it (the next field under the pointer). Reserve = the error's margin-top + one line at a fixed
+    line-height; the error's negative margin-bottom gives it back. Grid row-gap would add space for
+    the new row that no margin can cancel, so these fields space their rows with margin-top instead.
+    The hint stays visible (hiding it would pull the layout up by its own height). Measured: 0px for
+    one-line errors, desktop and mobile; a two-line error on a narrow phone moves one line.
+  */
+  .card { --err-line: 1.5; --err-reserve: calc(var(--space-2) + var(--text-sm) * var(--err-line)); }
+  .field[data-field] { row-gap: 0; padding-bottom: var(--err-reserve); }
+  .field[data-field] > :global(*:not(:first-child)) { margin-top: var(--space-2); }
+  .card :global([data-field] > p[id]:not(.field__hint)) {
+    display: flex;
+    gap: var(--space-2);
+    align-items: flex-start;
+    margin: var(--space-2) 0 0;
+    font-size: var(--text-sm);
+    line-height: var(--err-line);
+    color: var(--color-error);
+  }
+  /* After the rule above (same specificity): only .field wrappers carry the reserve. */
+  .field[data-field] > :global(p[id]:not(.field__hint)) { margin-bottom: calc(-1 * var(--err-reserve)); }
+  .card :global([data-field] > p[id]:not(.field__hint))::before {
+    content: "!";
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 1.1em;
+    height: 1.1em;
+    margin-top: 0.15em;
+    border-radius: 50%;
+    background: var(--color-error);
+    color: var(--color-on-accent);
+    font-size: 0.75em;
+    font-weight: var(--font-weight-heading);
+  }
+
+  .check { display: grid; grid-template-columns: auto 1fr; gap: var(--space-3); align-items: start; margin-top: var(--space-5); font-size: var(--text-sm); color: var(--color-text-muted); cursor: pointer; }
+  .check input { width: 1.125rem; height: 1.125rem; margin: 0.15em 0 0; accent-color: var(--color-iron-700); }
+
+  .step__nav { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); margin-top: var(--space-6); }
+  .btn-next, .btn-back, .btn-submit {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 3rem;
+    padding: var(--space-3) var(--space-5);
+    border-radius: var(--radius-sm);
+    font: inherit;
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-label);
+    cursor: pointer;
+    transition: background-color var(--duration-fast) var(--ease-standard), border-color var(--duration-fast) var(--ease-standard);
+  }
+  .btn-next, .btn-submit { margin-left: auto; border: 1px solid var(--color-accent); background: var(--color-accent); color: var(--color-on-accent); box-shadow: var(--shadow-sm); }
+  .btn-next:hover, .btn-submit:hover { background: var(--color-accent-hover); }
+  .btn-back { border: 1px solid var(--color-border-strong); background: transparent; color: var(--color-heading); }
+  .btn-back:hover { border-color: var(--color-heading); }
+  .btn-next:focus-visible, .btn-back:focus-visible, .btn-submit:focus-visible { outline: none; box-shadow: var(--shadow-focus); }
+  .btn-submit[disabled] { opacity: 0.7; cursor: progress; }
+  .alert .btn-next { margin-left: 0; }
+
+  .alert {
+    margin-top: var(--space-6);
+    padding: var(--space-4) var(--space-5);
+    border: 1px solid var(--color-error);
+    border-left-width: 3px;
+    border-radius: var(--radius-sm);
+    background: var(--color-surface);
+    color: var(--color-text);
+    font-size: var(--text-sm);
+  }
+  .alert p { margin: 0 0 var(--space-2); }
+  .alert__h { font-weight: var(--font-weight-heading); color: var(--color-error); }
+
+  .success { display: grid; gap: var(--space-4); animation: step-in var(--duration-slow) var(--ease-out-expo); }
+  .success__h { margin: 0; font-size: var(--text-2xl); }
+  .success__h:focus { outline: none; }
+  .success__recap { display: grid; gap: var(--space-2); margin: 0; padding: var(--space-4) 0; border-block: 1px solid var(--color-border); }
+  .success__recap div { display: grid; grid-template-columns: 7rem 1fr; gap: var(--space-3); }
+  .success__recap dt { font-size: var(--text-xs); letter-spacing: var(--tracking-eyebrow); text-transform: uppercase; color: var(--color-brass-700); }
+  .success__recap dd { margin: 0; color: var(--color-heading); overflow-wrap: anywhere; }
+  .success p { margin: 0; }
+  .success__demo { padding: var(--space-3) var(--space-4); border-radius: var(--radius-sm); background: var(--color-iron-50); color: var(--color-iron-800); font-size: var(--text-sm); }
+
+  @media (min-width: 768px) {
+    .card { padding: var(--space-7); }
+  }
+  @media (min-width: 1024px) {
+    .consult__grid { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: var(--space-9); }
+    .consult__intro { position: sticky; top: calc(var(--nav-height) + var(--space-6)); }
+  }
+</style>

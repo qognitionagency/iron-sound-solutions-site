@@ -1,0 +1,73 @@
+---
+/**
+ * Section header: the memorable `display` line as a <p> (styled large), with
+ * Nadia's keyword H2 beneath it (seo-spec §3: the H2 carries the meaning).
+ * Optional right-hand slot for a lede or CTA on wide screens.
+ */
+interface Props {
+  display: string;
+  heading: string;
+  id: string;
+  tone?: 'light' | 'deep';
+  align?: 'split' | 'stack';
+}
+const { display, heading, id, tone = 'light', align = 'split' } = Astro.props;
+const hasAside = Astro.slots.has('default');
+---
+<header class:list={['shead', `shead--${tone}`, hasAside && align === 'split' && 'shead--split']}>
+  <div class="shead__main">
+    <p class="display shead__display" data-split>{display}</p>
+    <h2 id={id} class="shead__h2">{heading}</h2>
+  </div>
+  {hasAside && <div class="shead__aside" data-reveal><slot /></div>}
+</header>
+
+<style>
+  .shead {
+    display: grid;
+    gap: var(--space-5);
+    margin-bottom: var(--space-8);
+  }
+  .shead__display {
+    margin: 0;
+    max-width: 18ch;
+    font-size: var(--text-3xl);
+  }
+  .shead__h2 {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-3);
+    margin: var(--space-5) 0 0;
+    max-width: 44ch;
+    font-family: var(--font-body);
+    font-stretch: normal;
+    font-size: var(--text-base);
+    font-weight: var(--font-weight-label);
+    letter-spacing: 0;
+    line-height: 1.45;
+    color: var(--color-text-muted);
+  }
+  .shead__h2::before {
+    content: "";
+    flex: none;
+    width: var(--space-6);
+    height: 1px;
+    transform: translateY(-0.3em);
+    background: var(--color-rule);
+  }
+  .shead__aside { max-width: 34rem; color: var(--color-text-muted); }
+  .shead__aside :global(p) { margin: 0 0 var(--space-4); }
+
+  .shead--deep .shead__display { color: var(--color-stone-50); }
+  .shead--deep .shead__h2 { color: var(--color-stone-200); }
+  .shead--deep .shead__aside { color: var(--color-stone-200); }
+
+  @media (min-width: 1024px) {
+    .shead--split {
+      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+      align-items: end;
+      gap: var(--space-8);
+    }
+    .shead__aside { justify-self: end; }
+  }
+</style>

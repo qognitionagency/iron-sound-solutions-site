@@ -1,0 +1,176 @@
+[
+  {
+    "slot": "hero",
+    "type": "video",
+    "pexelsId": 39576530,
+    "pageUrl": "https://www.pexels.com/video/luxurious-coastal-home-with-private-pool-view-39576530/",
+    "author": "Alef Morais",
+    "authorUrl": "https://www.pexels.com/@alef-morais-336305364",
+    "file": "public/media/hero.mp4"
+  },
+  {
+    "slot": "band-cinema",
+    "type": "photo",
+    "pexelsId": 30647348,
+    "pageUrl": "https://www.pexels.com/photo/cozy-living-room-with-home-theater-setup-30647348/",
+    "author": "Curt Hubner",
+    "authorUrl": "https://www.pexels.com/@curt-hubner-39375428",
+    "file": "src/assets/media/band-cinema.jpg"
+  },
+  {
+    "slot": "band-pool",
+    "type": "photo",
+    "pexelsId": 31817160,
+    "pageUrl": "https://www.pexels.com/photo/luxury-oceanview-villa-with-infinity-pool-at-sunset-31817160/",
+    "author": "Ahmet ÇÖTÜR",
+    "authorUrl": "https://www.pexels.com/@ahmetcotur",
+    "file": "src/assets/media/band-pool.jpg"
+  },
+  {
+    "slot": "band-yacht",
+    "type": "photo",
+    "pexelsId": 8356420,
+    "pageUrl": "https://www.pexels.com/photo/leather-seats-in-the-interior-of-a-yacht-8356420/",
+    "author": "ROMAN ODINTSOV",
+    "authorUrl": "https://www.pexels.com/@roman-odintsov",
+    "file": "src/assets/media/band-yacht.jpg"
+  },
+  {
+    "slot": "band-control",
+    "type": "photo",
+    "pexelsId": 39912933,
+    "pageUrl": "https://www.pexels.com/photo/modern-sauna-temperature-control-on-stone-wall-39912933/",
+    "author": "HUUM  │sauna heaters",
+    "authorUrl": "https://www.pexels.com/@huum-sauna-heaters-718199222",
+    "file": "src/assets/media/band-control.jpg"
+  },
+  {
+    "slot": "svc-audio-video",
+    "type": "photo",
+    "pexelsId": 7214461,
+    "pageUrl": "https://www.pexels.com/photo/tv-hanging-on-wall-in-living-room-7214461/",
+    "author": "Max Vakhtbovych",
+    "authorUrl": "https://www.pexels.com/@artbovich",
+    "file": "src/assets/media/svc-audio-video.jpg"
+  },
+  {
+    "slot": "svc-automation",
+    "type": "photo",
+    "pexelsId": 7005300,
+    "pageUrl": "https://www.pexels.com/photo/interior-of-contemporary-house-with-wooden-furniture-and-glass-panoramic-windows-7005300/",
+    "author": "Max Vakhtbovych",
+    "authorUrl": "https://www.pexels.com/@artbovich",
+    "file": "src/assets/media/svc-automation.jpg"
+  },
+  {
+    "slot": "svc-security",
+    "type": "photo",
+    "pexelsId": 33480797,
+    "pageUrl": "https://www.pexels.com/photo/minimalist-security-camera-on-modern-building-33480797/",
+    "author": "Reinis Brūzītis",
+    "authorUrl": "https://www.pexels.com/@reinis-bruzitis-2153679369",
+    "file": "src/assets/media/svc-security.jpg"
+  },
+  {
+    "slot": "svc-networking",
+    "type": "photo",
+    "pexelsId": 7349265,
+    "pageUrl": "https://www.pexels.com/photo/a-round-shape-on-a-wall-7349265/",
+    "author": "Nothing Ahead",
+    "authorUrl": "https://www.pexels.com/@ian-panelo",
+    "file": "src/assets/media/svc-networking.jpg"
+  },
+  {
+    "slot": "svc-lighting",
+    "type": "photo",
+    "pexelsId": 33326580,
+    "pageUrl": "https://www.pexels.com/photo/modern-kitchen-with-marble-island-and-pendant-lights-33326580/",
+    "author": "Quang Nguyen Vinh",
+    "authorUrl": "https://www.pexels.com/@quang-nguyen-vinh-222549",
+    "file": "src/assets/media/svc-lighting.jpg"
+  },
+  {
+    "slot": "svc-shades",
+    "type": "photo",
+    "pexelsId": 18207379,
+    "pageUrl": "https://www.pexels.com/photo/tiny-white-flowers-in-glass-vase-on-18207379/",
+    "author": "Dũng Phạm",
+    "authorUrl": "https://www.pexels.com/@dung-ph-m-694024428",
+    "file": "src/assets/media/svc-shades.jpg"
+  },
+  {
+    "slot": "signature-room",
+    "type": "photo",
+    "pexelsId": 31817162,
+    "pageUrl": "https://www.pexels.com/photo/modern-seaside-living-room-with-ocean-view-31817162/",
+    "author": "Ahmet ÇÖTÜR",
+    "authorUrl": "https://www.pexels.com/@ahmetcotur",
+    "file": "src/assets/media/signature-room.jpg"
+  },
+  {
+    "slot": "env-residential",
+    "type": "photo",
+    "pexelsId": 8134763,
+    "pageUrl": "https://www.pexels.com/photo/a-brown-couch-inside-the-living-room-8134763/",
+    "author": "Max Vakhtbovych",
+    "authorUrl": "https://www.pexels.com/@artbovich",
+    "file": "src/assets/media/env-residential.jpg"
+  },
+  {
+    "slot": "env-commercial",
+    "type": "photo",
+    "pexelsId": 6949382,
+    "pageUrl": "https://www.pexels.com/photo/black-monitors-on-wooden-table-in-a-conference-room-6949382/",
+    "author": "Werner Pfennig",
+    "authorUrl": "https://www.pexels.com/@werner-pfennig",
+    "file": "src/assets/media/env-commercial.jpg"
+  },
+  {
+    "slot": "env-marine-client",
+    "type": "photo",
+    "source": "client",
+    "sourceUrl": "https://images.squarespace-cdn.com/content/v1/696689075833b80ce4039262/e7521a6f-51fa-4bda-a499-b0a695b4ff1e/IMG_4286.PNG?format=2500w",
+    "provenance": "ironsoundsolutions.com (IMG_4286.PNG), viewed 2026-10-07. Served as a 10 MB PNG; converted by hand to JPEG, 2000 px tall. NEEDS DATA: Josiah confirms it is his own install, gives permission and supplies the original.",
+    "file": "src/assets/media/env-marine-client.jpg"
+  },
+  {
+    "slot": "gallery-pendants",
+    "type": "photo",
+    "source": "client",
+    "sourceUrl": "https://images.squarespace-cdn.com/content/v1/696689075833b80ce4039262/f3e44427-dc6b-4990-a23e-edce70a1b91b/IMG_6538.jpg?format=2500w",
+    "provenance": "ironsoundsolutions.com (IMG_6538.jpg), viewed 2026-10-07. NEEDS DATA: Josiah confirms it is his own install, gives permission and supplies the original.",
+    "file": "src/assets/media/gallery-pendants.jpg"
+  },
+  {
+    "slot": "gallery-theater",
+    "type": "photo",
+    "source": "client",
+    "sourceUrl": "https://images.squarespace-cdn.com/content/v1/696689075833b80ce4039262/063ab440-aa0c-4724-bfc4-9c3531765b89/IMG_0614.jpeg?format=2500w",
+    "provenance": "ironsoundsolutions.com (IMG_0614.jpeg), viewed 2026-10-07. NEEDS DATA: Josiah confirms it is his own install, gives permission and supplies the original.",
+    "file": "src/assets/media/gallery-theater.jpg"
+  },
+  {
+    "slot": "gallery-shades",
+    "type": "photo",
+    "source": "client",
+    "sourceUrl": "https://images.squarespace-cdn.com/content/v1/696689075833b80ce4039262/dd6b5cb5-ad38-45ce-be55-9870f96e71e8/IMG_7496.jpg?format=2500w",
+    "provenance": "ironsoundsolutions.com (IMG_7496.jpg), viewed 2026-10-07. NEEDS DATA: Josiah confirms it is his own install, gives permission and supplies the original.",
+    "file": "src/assets/media/gallery-shades.jpg"
+  },
+  {
+    "slot": "gallery-outdoor-tv",
+    "type": "photo",
+    "source": "client",
+    "sourceUrl": "https://images.squarespace-cdn.com/content/v1/696689075833b80ce4039262/a9e37604-921b-43d1-ad15-30f2275bbee4/IMG_1496.jpg?format=2500w",
+    "provenance": "ironsoundsolutions.com (IMG_1496.jpg), viewed 2026-10-07. NEEDS DATA: Josiah confirms it is his own install, gives permission and supplies the original.",
+    "file": "src/assets/media/gallery-outdoor-tv.jpg"
+  },
+  {
+    "slot": "gallery-camera",
+    "type": "photo",
+    "source": "client",
+    "sourceUrl": "https://images.squarespace-cdn.com/content/v1/696689075833b80ce4039262/67f8a6e7-7613-4186-98ba-c406de327455/IMG_0668.JPG?format=2500w",
+    "provenance": "ironsoundsolutions.com (IMG_0668.JPG), viewed 2026-10-07. NEEDS DATA: Josiah confirms it is his own install, gives permission and supplies the original.",
+    "file": "src/assets/media/gallery-camera.jpg"
+  }
+]

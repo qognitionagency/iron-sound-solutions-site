@@ -1,0 +1,142 @@
+{
+  "$comment": "Input to scripts/fetch-media.mjs (ADR 0001 \u00a74). Every Pexels id is pinned after a human review of the candidates; see art-direction.md \u00a75 for the slot briefs. Client photos come from ironsoundsolutions.com (Squarespace CDN) and are copied in by hand when a conversion is needed.",
+  "media": [
+    {
+      "slot": "hero",
+      "type": "video",
+      "id": 39576530,
+      "query": "infinity pool house sunset"
+    },
+    {
+      "slot": "band-cinema",
+      "type": "photo",
+      "id": 30647348,
+      "query": "luxury home cinema"
+    },
+    {
+      "slot": "band-pool",
+      "type": "photo",
+      "id": 31817160,
+      "query": "infinity pool evening"
+    },
+    {
+      "slot": "band-yacht",
+      "type": "photo",
+      "id": 8356420,
+      "query": "yacht interior salon"
+    },
+    {
+      "slot": "band-control",
+      "type": "photo",
+      "id": 39912933,
+      "query": "smart home control panel"
+    },
+    {
+      "slot": "svc-audio-video",
+      "type": "photo",
+      "id": 7214461,
+      "query": "minimal living room tv wall"
+    },
+    {
+      "slot": "svc-automation",
+      "type": "photo",
+      "id": 7005300,
+      "query": "modern living room evening lights"
+    },
+    {
+      "slot": "svc-security",
+      "type": "photo",
+      "id": 33480797,
+      "query": "security camera house exterior"
+    },
+    {
+      "slot": "svc-networking",
+      "type": "photo",
+      "id": 7349265,
+      "query": "wifi access point ceiling"
+    },
+    {
+      "slot": "svc-lighting",
+      "type": "photo",
+      "id": 33326580,
+      "query": "pendant lights kitchen island evening"
+    },
+    {
+      "slot": "svc-shades",
+      "type": "photo",
+      "id": 18207379,
+      "query": "sheer curtains living room sunlight"
+    },
+    {
+      "slot": "signature-room",
+      "type": "photo",
+      "id": 31817162,
+      "query": "luxury living room daylight"
+    },
+    {
+      "slot": "env-residential",
+      "type": "photo",
+      "id": 8134763,
+      "query": "open plan living room daylight"
+    },
+    {
+      "slot": "env-commercial",
+      "type": "photo",
+      "id": 6949382,
+      "query": "modern conference room screen"
+    },
+    {
+      "slot": "env-marine-client",
+      "type": "photo",
+      "source": "client",
+      "file": "env-marine-client.jpg",
+      "url": "https://images.squarespace-cdn.com/content/v1/696689075833b80ce4039262/e7521a6f-51fa-4bda-a499-b0a695b4ff1e/IMG_4286.PNG?format=2500w",
+      "provenance": "ironsoundsolutions.com (IMG_4286.PNG), viewed 2026-10-07. Served as a 10 MB PNG; converted by hand to JPEG, 2000 px tall. NEEDS DATA: Josiah confirms it is his own install, gives permission and supplies the original."
+    },
+    {
+      "slot": "gallery-pendants",
+      "type": "photo",
+      "source": "client",
+      "file": "gallery-pendants.jpg",
+      "url": "https://images.squarespace-cdn.com/content/v1/696689075833b80ce4039262/f3e44427-dc6b-4990-a23e-edce70a1b91b/IMG_6538.jpg?format=2500w",
+      "provenance": "ironsoundsolutions.com (IMG_6538.jpg), viewed 2026-10-07. NEEDS DATA: Josiah confirms it is his own install, gives permission and supplies the original."
+    },
+    {
+      "slot": "gallery-theater",
+      "type": "photo",
+      "source": "client",
+      "file": "gallery-theater.jpg",
+      "url": "https://images.squarespace-cdn.com/content/v1/696689075833b80ce4039262/063ab440-aa0c-4724-bfc4-9c3531765b89/IMG_0614.jpeg?format=2500w",
+      "provenance": "ironsoundsolutions.com (IMG_0614.jpeg), viewed 2026-10-07. NEEDS DATA: Josiah confirms it is his own install, gives permission and supplies the original."
+    },
+    {
+      "slot": "gallery-shades",
+      "type": "photo",
+      "source": "client",
+      "file": "gallery-shades.jpg",
+      "url": "https://images.squarespace-cdn.com/content/v1/696689075833b80ce4039262/dd6b5cb5-ad38-45ce-be55-9870f96e71e8/IMG_7496.jpg?format=2500w",
+      "provenance": "ironsoundsolutions.com (IMG_7496.jpg), viewed 2026-10-07. NEEDS DATA: Josiah confirms it is his own install, gives permission and supplies the original."
+    },
+    {
+      "slot": "gallery-outdoor-tv",
+      "type": "photo",
+      "source": "client",
+      "file": "gallery-outdoor-tv.jpg",
+      "url": "https://images.squarespace-cdn.com/content/v1/696689075833b80ce4039262/a9e37604-921b-43d1-ad15-30f2275bbee4/IMG_1496.jpg?format=2500w",
+      "provenance": "ironsoundsolutions.com (IMG_1496.jpg), viewed 2026-10-07. NEEDS DATA: Josiah confirms it is his own install, gives permission and supplies the original."
+    },
+    {
+      "slot": "gallery-camera",
+      "type": "photo",
+      "source": "client",
+      "file": "gallery-camera.jpg",
+      "url": "https://images.squarespace-cdn.com/content/v1/696689075833b80ce4039262/67f8a6e7-7613-4186-98ba-c406de327455/IMG_0668.JPG?format=2500w",
+      "provenance": "ironsoundsolutions.com (IMG_0668.JPG), viewed 2026-10-07. NEEDS DATA: Josiah confirms it is his own install, gives permission and supplies the original."
+    }
+  ],
+  "$rejected": [
+    "Residential.png (homepage dusk villa): largest copy served is 1050x600 and its origin is unknown; not used.",
+    "frames-for-your-heart-2d4lAQAlbDA-unsplash.jpg: an Unsplash stock photo per its filename; never shown as Iron Sound work, not used.",
+    "The three /services commercial images: filenames begin 'ChatGPT Image Jan 21, 2026' (AI-generated); not used."
+  ]
+}

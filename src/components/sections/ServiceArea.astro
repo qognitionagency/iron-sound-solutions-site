@@ -1,0 +1,146 @@
+---
+/**
+ * Service area. Stylised SVG of the South Florida coast, projected from
+ * approximate lon/lat (equirectangular, x scaled by cos 26°). County bands are
+ * split at the real county-line latitudes (PB/Broward ≈ 26.32°N,
+ * Broward/Miami-Dade ≈ 25.96°N). It is a diagram, not a survey map.
+ * The counties and cities are also in HTML text (seo-spec alt rule 9).
+ */
+import { serviceArea } from '../../data/content';
+import Button from '../ui/Button.astro';
+import SectionHead from '../ui/SectionHead.astro';
+
+const K = 400; // px per degree of latitude
+const COS = Math.cos((26 * Math.PI) / 180);
+const LON0 = -81.0;
+const LAT0 = 27.05;
+const px = (lon: number) => +((lon - LON0) * K * COS).toFixed(1);
+const py = (lat: number) => +((LAT0 - lat) * K).toFixed(1);
+
+// Coastline, north → south (approximate).
+const coast: [number, number][] = [
+  [-80.07, 27.05], [-80.06, 26.95], [-80.04, 26.8], [-80.03, 26.7], [-80.04, 26.55], [-80.06, 26.45],
+  [-80.07, 26.36], [-80.08, 26.25], [-80.1, 26.12], [-80.11, 26.0], [-80.12, 25.9], [-80.13, 25.79],
+  [-80.19, 25.72], [-80.27, 25.6], [-80.32, 25.48], [-80.37, 25.35], [-80.45, 25.22], [-80.6, 25.15], [-80.75, 25.13],
+];
+const WEST = -80.88;
+const SOUTH = 25.13;
+const land = `M${px(WEST)} ${py(LAT0)} ` + coast.map(([lo, la]) => `L${px(lo)} ${py(la)}`).join(' ') + ` L${px(WEST)} ${py(SOUTH)} Z`;
+const coastLine = 'M' + coast.map(([lo, la]) => `${px(lo)} ${py(la)}`).join(' L');
+
+const W = Math.ceil(px(-79.85));
+const H = Math.ceil(py(25.0));
+
+const bands = [
+  { key: 'palm-beach', label: serviceArea.counties[0], top: LAT0, bottom: 26.32 },
+  { key: 'broward', label: serviceArea.counties[1], top: 26.32, bottom: 25.96 },
+  { key: 'miami-dade', label: serviceArea.counties[2], top: 25.96, bottom: SOUTH },
+];
+
+// City markers (approximate coastal positions); labels come from content.ts.
+// [lon, lat, label offset px]: Miami's label clears the bend into Biscayne Bay.
+const cityPos: Record<string, [number, number, number]> = {
+  'Palm Beach': [-80.04, 26.71, 14],
+  'Boca Raton': [-80.08, 26.36, 14],
+  'Fort Lauderdale': [-80.12, 26.12, 14],
+  Miami: [-80.2, 25.77, 26],
+};
+const cities = serviceArea.cities.flatMap((c) => {
+  const pos = cityPos[c];
+  return pos ? [{ name: c, x: px(pos[0]), y: py(pos[1]), dx: pos[2] }] : [];
+});
+const hatch = Array.from({ length: Math.ceil(H / 14) }, (_, i) => i * 14 + 7);
+const countyKey = (label: string) => bands.find((b) => b.label === label)?.key ?? '';
+---
+<section id="area" class="section area" aria-labelledby="area-heading">
+  <div class="frame area__grid">
+    <div class="area__text">
+      <SectionHead display={serviceArea.display} heading={serviceArea.heading} id="area-heading" align="stack" />
+      <p class="area__body">{serviceArea.body}</p>
+      <ul class="area__counties" role="list">
+        {serviceArea.counties.map((c) => (
+          <li data-county={countyKey(c)}>{c}</li>
+        ))}
+      </ul>
+      <div class="area__ctas">
+        <Button cta={serviceArea.ask} location="area" variant="secondary" />
+        <Button cta={serviceArea.secondary} location="area" variant="text" />
+      </div>
+    </div>
+
+    <figure class="area__map" data-reveal>
+      <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={serviceArea.mapLabel} class="map">
+        <defs>
+          <clipPath id="land-clip"><path d={land} /></clipPath>
+        </defs>
+        <g class="map__sea" aria-hidden="true">
+          {hatch.map((y) => <line x1={px(-80.2)} x2={W} y1={y} y2={y} />)}
+        </g>
+        <g clip-path="url(#land-clip)">
+          {bands.map((b) => (
+            <rect class="map__county" data-county={b.key} x="0" y={py(b.top)} width={W} height={py(b.bottom) - py(b.top)} />
+          ))}
+        </g>
+        {bands.slice(1).map((b) => (
+          <line class="map__line" x1={px(WEST)} x2={px(-80.11)} y1={py(b.top)} y2={py(b.top)} />
+        ))}
+        <path class="map__coast" d={coastLine} />
+        {bands.map((b) => (
+          <text class="map__county-label" x={px(WEST) + 14} y={(py(b.top) + py(b.bottom)) / 2}>{b.label.toUpperCase()}</text>
+        ))}
+        {cities.map((c) => (
+          <g class="map__city">
+            <circle cx={c.x} cy={c.y} r="4" />
+            <text x={c.x + c.dx} y={c.y + 4}>{c.name}</text>
+          </g>
+        ))}
+        <g class="map__north" transform={`translate(${W - 34} 34)`} aria-hidden="true">
+          <path d="M0 -16 L6 6 L0 2 L-6 6 Z" />
+          <text y="22" text-anchor="middle">N</text>
+        </g>
+      </svg>
+    </figure>
+  </div>
+</section>
+
+<style>
+  .area { background: var(--color-stone-100); }
+  .area__grid { display: grid; gap: var(--space-8); align-items: center; }
+  .area__text :global(.shead) { margin-bottom: var(--space-5); }
+  .area__body { margin: 0; max-width: var(--measure); }
+  .area__counties { display: grid; margin: var(--space-6) 0 0; padding: 0; list-style: none; border-top: 1px solid var(--color-border); }
+  .area__counties li {
+    padding-block: var(--space-3);
+    border-bottom: 1px solid var(--color-border);
+    font-family: var(--font-display);
+    font-stretch: var(--font-display-stretch);
+    font-weight: var(--font-weight-heading);
+    font-size: var(--text-lg);
+    color: var(--color-heading);
+    transition: color var(--duration-base) var(--ease-standard), padding var(--duration-base) var(--ease-out-quart);
+  }
+  .area__counties li:hover { color: var(--color-iron-700); padding-left: var(--space-2); }
+  .area__ctas { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-4) var(--space-6); margin-top: var(--space-6); }
+
+  .area__map { margin: 0; }
+  .map { display: block; width: 100%; max-width: 30rem; height: auto; margin-inline: auto; overflow: visible; }
+  .map__sea line { stroke: var(--color-iron-200); stroke-width: 1; opacity: 0.55; }
+  .map__county { fill: var(--color-iron-50); transition: fill var(--duration-base) var(--ease-standard); }
+  .map__county[data-county="broward"] { fill: var(--color-iron-100); }
+  .map__line { stroke: var(--color-brass); stroke-width: 1; stroke-dasharray: 3 4; }
+  .map__coast { fill: none; stroke: var(--color-harbor); stroke-width: 1.5; stroke-linejoin: round; }
+  .map__county-label { font-family: var(--font-body); font-size: 11px; letter-spacing: 0.2em; fill: var(--color-harbor); }
+  .map__city circle { fill: var(--color-iron-700); }
+  .map__city text { font-family: var(--font-body); font-size: 13px; font-weight: 500; fill: var(--color-harbor); }
+  .map__north path { fill: var(--color-brass); }
+  .map__north text { font-family: var(--font-body); font-size: 11px; fill: var(--color-brass-700); }
+
+  /* Hovering a county in the list lights it on the map: ties the text to the diagram. */
+  .area:has(li[data-county="palm-beach"]:hover) .map__county[data-county="palm-beach"],
+  .area:has(li[data-county="broward"]:hover) .map__county[data-county="broward"],
+  .area:has(li[data-county="miami-dade"]:hover) .map__county[data-county="miami-dade"] { fill: var(--color-iron-200); }
+
+  @media (min-width: 1024px) {
+    .area__grid { grid-template-columns: minmax(0, 6fr) minmax(0, 5fr); gap: var(--space-9); }
+  }
+</style>

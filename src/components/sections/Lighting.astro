@@ -1,0 +1,292 @@
+---
+/**
+ * Day → Dusk (signature). One daylight photo; Dusk is built in CSS on top of it
+ * (art-direction §5.4): a dimmed copy, a harbor multiply layer, a dusk sky over the
+ * glazing, and warm/violet glows at each fixture from signature-room-lights.json.
+ * --dusk (0..1) drives every layer. Scroll drives it (motion.ts → scene:progress)
+ * until the visitor uses the toggle, which then owns the state (aria-pressed).
+ * Without JS: the day photo, the copy and the CTA render; the toggle stays hidden.
+ */
+import { lighting } from '../../data/content';
+import scene from '../../data/signature-room-lights.json';
+import Img from '../ui/Img.astro';
+import Button from '../ui/Button.astro';
+import SectionHead from '../ui/SectionHead.astro';
+
+const w = scene.windows;
+const imgProps = { slot: 'signature-room', ratio: 3 / 2, widths: [640, 960, 1280, 1600, 2000], sizes: '(min-width: 1536px) 1456px, 94vw' };
+---
+<section id="lighting" class="section lighting" aria-labelledby="lighting-heading">
+  <div class="frame">
+    <SectionHead display={lighting.display} heading={lighting.heading} id="lighting-heading">
+      <p>{lighting.body}</p>
+    </SectionHead>
+  </div>
+
+  <div class="lighting__stage-wrap frame">
+    <figure class="stage" data-scene style="--dusk: 0" data-alt-day={lighting.states.day.alt} data-alt-dusk={lighting.states.dusk.alt}>
+      <div class="stage__frame">
+        <Img {...imgProps} alt={lighting.states.day.alt} class="stage__img stage__img--day" />
+        <div class="stage__dusk" aria-hidden="true">
+          <Img {...imgProps} alt="" class="stage__img stage__img--dim" />
+          <span class="stage__night"></span>
+          <span class="stage__sky" style={`left:${w.x}%;top:${w.y}%;width:${w.w}%;height:${w.h}%`}></span>
+          {scene.lights.map((l) => (
+            <span class:list={['stage__light', `stage__light--${l.kind}`]} style={`left:${l.x}%;top:${l.y}%;--r:${l.r}`}></span>
+          ))}
+        </div>
+        <p class="stage__note">{lighting.illustrationNote}</p>
+
+        <div class="stage__control" data-scene-control hidden>
+          <span class="stage__control-label" id="scene-label">{lighting.controlLabel}</span>
+          <span class="switch-group">
+          <span class="switch__opt switch__opt--day" aria-hidden="true" data-scene-day>{lighting.states.day.label}</span>
+          <button
+            type="button"
+            class="switch"
+            aria-pressed="false"
+            aria-labelledby="scene-label scene-dusk"
+            data-scene-toggle
+          >
+            <span class="switch__track" aria-hidden="true"><span class="switch__knob"></span></span>
+            <span class="switch__opt switch__opt--dusk" id="scene-dusk">{lighting.states.dusk.label}</span>
+          </button>
+          </span>
+        </div>
+      </div>
+
+      <figcaption class="stage__caption">
+        <span class="stage__state" aria-live="polite" data-scene-caption data-day={lighting.states.day.caption} data-dusk={lighting.states.dusk.caption}>{lighting.states.day.caption}</span>
+        <span class="stage__cta" data-scene-cta>
+          <Button cta={lighting.cta} location="lighting" variant="text" />
+        </span>
+      </figcaption>
+    </figure>
+  </div>
+</section>
+
+<script>
+  import { track } from '../../scripts/analytics';
+
+  const stage = document.querySelector<HTMLElement>('[data-scene]');
+  if (stage) {
+    const control = stage.querySelector<HTMLElement>('[data-scene-control]')!;
+    const toggle = stage.querySelector<HTMLButtonElement>('[data-scene-toggle]')!;
+    const caption = stage.querySelector<HTMLElement>('[data-scene-caption]')!;
+    const cta = stage.querySelector<HTMLElement>('[data-scene-cta]')!;
+    const dayImg = stage.querySelector<HTMLImageElement>('.stage__img--day')!;
+
+    let dusk = false;
+    let userOwned = false;
+    let revealed = false;
+
+    control.hidden = false;
+    cta.hidden = true;
+
+    const reveal = () => {
+      if (revealed) return;
+      revealed = true;
+      cta.hidden = false;
+      cta.classList.add('is-in');
+    };
+
+    const setState = (on: boolean) => {
+      if (on === dusk) return;
+      dusk = on;
+      toggle.setAttribute('aria-pressed', String(on));
+      stage.classList.toggle('is-dusk', on);
+      dayImg.alt = (on ? stage.dataset.altDusk : stage.dataset.altDay) ?? '';
+      caption.textContent = (on ? caption.dataset.dusk : caption.dataset.day) ?? '';
+    };
+
+    // "Day" sits outside the button (so the button's visible text is in its name); clicking it returns to Day.
+    stage.querySelector<HTMLElement>('[data-scene-day]')?.addEventListener('click', () => {
+      if (dusk) toggle.click();
+    });
+
+    toggle.addEventListener('click', () => {
+      userOwned = true;
+      stage.classList.remove('is-scrubbing');
+      const next = !dusk;
+      stage.style.setProperty('--dusk', next ? '1' : '0');
+      setState(next);
+      reveal();
+      track('lighting_toggle', { state: next ? 'dusk' : 'day' });
+    });
+
+    // Scroll drives the scene until the visitor takes over.
+    stage.addEventListener('scene:progress', (e) => {
+      if (userOwned) return;
+      const p = (e as CustomEvent<{ progress: number }>).detail.progress;
+      stage.classList.add('is-scrubbing');
+      stage.style.setProperty('--dusk', p.toFixed(3));
+      setState(p > 0.5);
+      if (p > 0.95) reveal();
+    });
+  }
+</script>
+
+<style>
+  .lighting { background: var(--color-stone-100); }
+  .lighting__stage-wrap { max-width: calc(var(--container-wide) + 2 * var(--space-gutter)); }
+
+  .stage { margin: 0; }
+  .stage__frame {
+    position: relative;
+    overflow: hidden;
+    aspect-ratio: 3 / 2;
+    border-radius: var(--radius-md);
+    background: var(--color-harbor);
+    box-shadow: var(--shadow-lg);
+  }
+  .stage__frame :global(picture), .stage__frame :global(.stage__img) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* Every dusk layer reads --dusk; the toggle animates it, scroll scrubs it. */
+  .stage__dusk {
+    position: absolute;
+    inset: 0;
+    opacity: var(--dusk);
+    transition: opacity var(--duration-scene) var(--ease-in-out);
+  }
+  .stage.is-scrubbing .stage__dusk, .stage.is-scrubbing .stage__light { transition: none; }
+  .stage__frame :global(.stage__img--dim) { filter: brightness(0.62) saturate(0.82) contrast(1.06); }
+  .stage__night { position: absolute; inset: 0; background: var(--scene-night); mix-blend-mode: multiply; }
+  /* Blue-hour sky over the glazing: harbor at the top, dusk violet at the horizon. */
+  .stage__sky {
+    position: absolute;
+    background: linear-gradient(to bottom, var(--color-harbor), var(--color-dusk) 78%, var(--scene-lamp));
+    mix-blend-mode: color;
+    opacity: 0.85;
+  }
+
+  /* Lamps come up after the room has dimmed: opacity lags --dusk. */
+  .stage__light {
+    position: absolute;
+    width: calc(var(--r) * 1%);
+    aspect-ratio: 1;
+    transform: translate(-50%, -50%) scale(calc(0.6 + var(--dusk) * 0.4));
+    border-radius: 50%;
+    mix-blend-mode: screen;
+    opacity: clamp(0, (var(--dusk) - 0.35) * 1.8, 1);
+    pointer-events: none;
+  }
+  .stage__light--lamp { background: radial-gradient(circle, var(--scene-lamp) 0, rgb(255 201 138 / 0.5) 22%, rgb(255 201 138 / 0) 68%); }
+  .stage__light--pool { aspect-ratio: 5 / 1; background: radial-gradient(ellipse, rgb(142 155 255 / 0.55) 0, rgb(142 155 255 / 0.18) 40%, rgb(142 155 255 / 0) 70%); }
+  .stage__light--cove { aspect-ratio: 4 / 1; background: radial-gradient(ellipse, rgb(255 201 138 / 0.8) 0, rgb(255 201 138 / 0.25) 40%, rgb(255 201 138 / 0) 70%); }
+
+  .stage__note {
+    position: absolute;
+    top: var(--space-4);
+    left: var(--space-4);
+    margin: 0;
+    padding: var(--space-1) var(--space-3);
+    border-radius: var(--radius-xs);
+    background: var(--color-surface-glass);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    color: var(--color-ink);
+    font-size: var(--text-xs);
+  }
+
+  .stage__control {
+    position: absolute;
+    left: 50%;
+    bottom: var(--space-5);
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    padding: var(--space-2) var(--space-2) var(--space-2) var(--space-5);
+    border-radius: var(--radius-pill);
+    background: var(--color-surface-glass);
+    -webkit-backdrop-filter: blur(18px) saturate(1.2);
+    backdrop-filter: blur(18px) saturate(1.2);
+    box-shadow: var(--shadow-glass);
+    white-space: nowrap;
+  }
+  .stage__control-label {
+    font-size: var(--text-xs);
+    font-weight: var(--font-weight-label);
+    letter-spacing: var(--tracking-eyebrow);
+    text-transform: uppercase;
+    color: var(--color-brass-700);
+  }
+  .switch-group {
+    display: inline-flex;
+    align-items: center;
+    padding-left: var(--space-4);
+    border-radius: var(--radius-pill);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-xs);
+  }
+  .switch {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-3);
+    min-height: 2.75rem;
+    padding: 0 var(--space-4);
+    border: 0;
+    border-radius: var(--radius-pill);
+    background: transparent;
+    color: var(--color-heading);
+    font: inherit;
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-label);
+    cursor: pointer;
+  }
+  .switch:focus-visible { outline: none; box-shadow: var(--shadow-focus); }
+  .switch__opt { transition: color var(--duration-base) var(--ease-standard); }
+  .switch__opt--day { cursor: pointer; color: var(--color-heading); font-size: var(--text-sm); font-weight: var(--font-weight-label); }
+  .switch__opt--dusk { color: var(--color-text-muted); }
+  .stage:global(.is-dusk) .switch__opt--day { color: var(--color-text-muted); }
+  .switch[aria-pressed="true"] .switch__opt--dusk { color: var(--color-heading); }
+  .switch__track {
+    position: relative;
+    width: 2.75rem;
+    height: 1.5rem;
+    border-radius: var(--radius-pill);
+    background: var(--color-stone-200);
+    transition: background-color var(--duration-scene) var(--ease-in-out);
+  }
+  .switch__knob {
+    position: absolute;
+    top: 0.1875rem;
+    left: 0.1875rem;
+    width: 1.125rem;
+    height: 1.125rem;
+    border-radius: 50%;
+    background: var(--color-surface);
+    box-shadow: var(--shadow-sm);
+    transition: transform var(--duration-base) var(--ease-out-quart), box-shadow var(--duration-scene) var(--ease-in-out);
+  }
+  .switch[aria-pressed="true"] .switch__track { background: var(--color-harbor); }
+  .switch[aria-pressed="true"] .switch__knob { transform: translateX(1.25rem); box-shadow: 0 0 0 1px rgb(255 201 138 / 0.6), 0 0 14px 2px rgb(255 201 138 / 0.7); }
+
+  .stage__caption {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3) var(--space-6);
+    margin-top: var(--space-4);
+    min-height: 2.75rem;
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+  }
+  .stage__state { font-weight: var(--font-weight-label); color: var(--color-heading); }
+  .stage__cta.is-in { animation: rise var(--duration-slow) var(--ease-out-expo) both; }
+  @keyframes rise { from { opacity: 0; transform: translateY(8px); } }
+
+  @media (max-width: 767px) {
+    .stage__frame { aspect-ratio: 4 / 5; }
+    .stage__frame :global(.stage__img) { object-position: 40% 50%; }
+    .stage__control { bottom: var(--space-4); padding-left: var(--space-4); gap: var(--space-3); }
+    .stage__control-label { display: none; }
+  }
+</style>
